@@ -1,0 +1,111 @@
+<main class="auth-container" style="background: transparent;">
+  <div class="auth-card fade-in" style="margin: 0 auto; margin-top: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <div class="brand-header">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined icon-fill">manage_accounts</span>
+      </div>
+      <h1>Editar Perfil</h1>
+      <p>Actualiza tu información personal</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (success()) {
+      <div class="alert" style="background-color: var(--secondary-container); color: var(--on-secondary-container);">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span>{{ success() }}</span>
+      </div>
+    }
+
+    <form class="auth-form" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="username">Nombre de Usuario</label>
+        <div class="input-wrapper">
+          <input
+            id="username"
+            type="text"
+            placeholder="Nuevo nombre de usuario"
+            formControlName="username"
+          />
+        </div>
+        <div class="error-text">
+          @if (profileForm.controls.username.invalid && (profileForm.controls.username.dirty || profileForm.controls.username.touched)) {
+            <span>Usuario requerido (min 3 caracteres)</span>
+          }
+        </div>
+      </div>
+
+      <!-- Lastname Field -->
+      <div class="form-group">
+        <label for="lastname">Apellidos</label>
+        <div class="input-wrapper">
+          <input
+            id="lastname"
+            type="text"
+            placeholder="Nuevos apellidos"
+            formControlName="lastname"
+          />
+        </div>
+        <div class="error-text">
+          @if (profileForm.controls.lastname.invalid && (profileForm.controls.lastname.dirty || profileForm.controls.lastname.touched)) {
+            <span>Apellido requerido (min 3 caracteres)</span>
+          }
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <input
+            id="email"
+            type="email"
+            placeholder="Nuevo correo"
+            formControlName="email"
+          />
+        </div>
+        <div class="error-text">
+          @if (profileForm.controls.email.invalid && (profileForm.controls.email.dirty || profileForm.controls.email.touched)) {
+            <span>Correo electrónico inválido</span>
+          }
+        </div>
+      </div>
+
+      <!-- New Password Field -->
+      <div class="form-group">
+        <label for="newPassword">Nueva Contraseña (Opcional)</label>
+        <div class="input-wrapper">
+          <input
+            id="newPassword"
+            type="password"
+            placeholder="Deja en blanco para no cambiarla"
+            formControlName="newPassword"
+          />
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="profileForm.invalid || loading()"
+        style="margin-top: 16px;"
+      >
+        @if (loading()) {
+          <span class="material-symbols-outlined spinner">progress_activity</span>
+          <span>Actualizando...</span>
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+          <span>Guardar Cambios</span>
+        }
+      </button>
+
+    </form>
+  </div>
+</main>

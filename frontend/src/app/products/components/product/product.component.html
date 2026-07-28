@@ -1,0 +1,127 @@
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Gestión de Inventario</h2>
+    <p class="page-subtitle">Gestiona y supervisa los artículos del inventario empresarial.</p>
+  </div>
+</div>
+
+<div class="content-grid">
+  <!-- Sección: Formulario de Producto -->
+  <div class="card form-card">
+    <div class="card-header">
+      <h4 class="card-title">{{ productSelected().id > 0 ? 'Editar Artículo' : 'Nuevo Artículo' }}</h4>
+    </div>
+    <div class="card-body">
+      <app-form (newProductEvent)="addProduct($event)" [product]="productSelected()"></app-form>
+    </div>
+  </div>
+
+  <!-- Sección: Tabla de Productos -->
+  <div class="card table-card-wrapper">
+    <div class="card-header space-between">
+      <h4 class="card-title">Lista de Artículos</h4>
+    </div>
+
+    @if (filteredProducts().length > 0) {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>NOMBRE</th>
+              <th>DESCRIPCIÓN</th>
+              <th>PRECIO</th>
+              <th>STOCK</th>
+              <th>CATEGORÍA</th>
+              <th class="text-right">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of paginatedProducts(); track $index) {
+              <tr class="table-row">
+                <td class="font-code text-primary">NX-{{ product.id | number:'3.0' }}</td>
+                <td>
+                  <div class="product-name-cell">
+                    <div class="icon-box-small">
+                      <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span>{{ product.name }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ product.description }}</td>
+                <td>
+                  <span class="chip chip-success">${{ product.price }}</span>
+                </td>
+                <td>
+                  <!-- Chip de color según nivel de stock -->
+                  @if (product.stock > 10) {
+                    <span class="chip chip-success">{{ product.stock }} ud.</span>
+                  } @else if (product.stock > 0) {
+                    <span class="chip chip-warning">{{ product.stock }} ud.</span>
+                  } @else {
+                    <span class="chip chip-danger">Agotado</span>
+                  }
+                </td>
+                <td>{{ product.category }}</td>
+                <td class="text-right">
+                  <div class="actions-cell">
+                    <button class="icon-btn-ghost text-primary" (click)="onUpdateProduct(product)" title="Editar">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="icon-btn-ghost text-danger" (click)="onRemoveProduct(product)" title="Eliminar">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Controles de Paginación -->
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Mostrando {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ (currentPage() * itemsPerPage()) > filteredProducts().length ? filteredProducts().length : (currentPage() * itemsPerPage()) }} de {{ filteredProducts().length }} artículos
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+
+          @for (page of [].constructor(totalPages()); track $index) {
+            <button class="page-btn" [class.active]="currentPage() === ($index + 1)" (click)="goToPage($index + 1)">
+              {{ $index + 1 }}
+            </button>
+          }
+
+          <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">inventory</span>
+        <p>No hay artículos registrados en el sistema.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+@if (productToDelete()) {
+  <div class="modal-overlay fade-in" (click)="cancelDelete()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon-warning">
+        <span class="material-symbols-outlined">warning</span>
+      </div>
+      <h3 class="modal-title">¿Eliminar producto?</h3>
+      <p class="modal-body">Estás a punto de eliminar <strong>"{{ productToDelete()!.name }}"</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,129 @@
+<main class="auth-container">
+  <div class="auth-card fade-in reg-card">
+    <!-- Brand -->
+    <div class="brand-header">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined icon-fill">dataset</span>
+      </div>
+      <h1 class="brand-title">Nexus CRM</h1>
+      <p class="brand-sub">Suite Empresarial</p>
+      
+      <h2 class="title">Crear Cuenta</h2>
+      <p>Ingresa tus datos para acceder a tu espacio de trabajo.</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Username & Lastname Grid -->
+      <div class="grid">
+        <div class="form-group">
+          <label for="username">Nombre</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined ico-left">person</span>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              placeholder="Juan"
+              class="pad-left"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastname">Apellido</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined ico-left">person</span>
+            <input
+              id="lastname"
+              type="text"
+              formControlName="lastname"
+              placeholder="Pérez"
+              class="pad-left"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined ico-left">mail</span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="nombre@empresa.com"
+            autocomplete="email"
+            class="pad-left"
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined ico-left">lock</span>
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            class="pad-left"
+          />
+          <button type="button" class="icon-btn" (click)="togglePassword()">
+            <span class="material-symbols-outlined">
+              {{ showPassword() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Password</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined ico-left">lock_clock</span>
+          <input
+            id="confirmPassword"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            class="pad-left"
+          />
+        </div>
+        <div class="error-text err-flex">
+          @if (registerForm.errors?.['passwordsMismatch'] && registerForm.controls.confirmPassword.touched) {
+            <span class="material-symbols-outlined err-ico">error</span>
+            <span>Las contraseñas no coinciden</span>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading() || registerForm.invalid">
+        @if (loading()) {
+          <span class="material-symbols-outlined spinner">sync</span>
+          <span>Creando cuenta...</span>
+        } @else {
+          <span>Registrarse</span>
+          <span class="material-symbols-outlined ico-right">arrow_forward</span>
+        }
+      </button>
+
+      <div class="auth-footer">
+        <p>¿Ya tienes una cuenta? <a routerLink="/login">Iniciar Sesión</a></p>
+      </div>
+    </form>
+  </div>
+</main>

@@ -1,0 +1,117 @@
+@if (authService.isAuthenticated()) {
+  <div class="dashboard-shell">
+    <!-- Barra Lateral (Sidebar) -->
+    <aside class="sidebar">
+      <!-- Marca / Logo -->
+      <div class="sidebar-brand">
+        <div class="brand-icon-box">
+          <span class="material-symbols-outlined icon-fill">dataset</span>
+        </div>
+        <div>
+          <h1 class="brand-title">Nexus Inventario</h1>
+          <p class="brand-subtitle">Gestión de Activos</p>
+        </div>
+      </div>
+
+      <!-- Navegación Principal -->
+      <nav class="sidebar-nav">
+        <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+          <span class="material-symbols-outlined icon-fill">dashboard</span>
+          <span>Tablero</span>
+        </a>
+        <a class="nav-link" routerLink="/products" routerLinkActive="active">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <span>Artículos</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="main-viewport">
+      <!-- Barra Superior -->
+      <header class="top-header">
+        <div class="header-left">
+          @if (showSearch) {
+            <div class="search-box">
+              <span class="material-symbols-outlined search-icon">search</span>
+              <input type="text" placeholder="Buscar artículos..." #searchInput (input)="onSearch(searchInput.value)" />
+            </div>
+          }
+        </div>
+
+        <div class="header-right">
+          <!-- Botón: Cambiar Tema -->
+          <button class="icon-btn theme-btn" (click)="toggleTheme()">
+            <span class="material-symbols-outlined">
+              {{ isDark() ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+
+          <!-- Menú de Usuario -->
+          <div class="user-menu-wrapper">
+            <button class="user-menu-btn" (click)="toggleProfileMenu()">
+              {{ authService.getUsername() }}
+              <span class="material-symbols-outlined expand-icon">expand_more</span>
+            </button>
+
+            @if (showProfileMenu()) {
+              <div class="dropdown-menu fade-in">
+                <!-- Información del perfil -->
+                <div class="dropdown-profile">
+                  <span class="material-symbols-outlined">account_circle</span>
+                  <div class="profile-info">
+                    <span class="profile-name">{{ authService.getUsername() || 'Usuario' }}</span>
+                    <span class="profile-email">Nexus Inventario</span>
+                  </div>
+                </div>
+                <hr class="dropdown-divider" />
+                <!-- Botón: Editar Perfil -->
+                <a routerLink="/profile" class="dropdown-item" (click)="showProfileMenu.set(false)">
+                  <span class="material-symbols-outlined">edit</span>
+                  Editar Perfil
+                </a>
+                <!-- Botón: Cerrar sesión -->
+                <button class="dropdown-item text-danger" (click)="logout()">
+                  <span class="material-symbols-outlined">logout</span>
+                  Cerrar sesión
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </header>
+
+      <!-- Contenido Dinámico (Router Outlet) -->
+      <div class="content-canvas">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+} @else {
+  <!-- Páginas de Autenticación (Login / Registro) -->
+  <div class="auth-wrapper">
+    <div class="theme-toggle-floating">
+      <button class="icon-btn theme-btn theme-btn-floating" (click)="toggleTheme()">
+        <span class="material-symbols-outlined">
+          {{ isDark() ? 'light_mode' : 'dark_mode' }}
+        </span>
+      </button>
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+}
+
+<!-- Notificaciones Toast -->
+<div class="toast-container">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast fade-in" [class]="'toast-' + toast.type">
+      <span class="material-symbols-outlined">
+        {{ toast.type === 'success' ? 'check_circle' : toast.type === 'error' ? 'error' : 'info' }}
+      </span>
+      <span>{{ toast.message }}</span>
+      <button class="toast-close" (click)="toastService.remove(toast.id)">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  }
+</div>

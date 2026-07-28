@@ -1,0 +1,90 @@
+<div class="dashboard-container fade-in">
+  <!-- Encabezado de Bienvenida -->
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h2>Bienvenido, {{ authService.getUsername() }}</h2>
+      <p class="subtitle">Panel de Control</p>
+    </div>
+  </header>
+
+  <!-- Cuadrícula de Estadísticas (4 Tarjetas) -->
+  <div class="stats-grid">
+    <!-- Total de Artículos -->
+    <div class="card stat-card">
+      <div class="stat-icon-wrapper stat-primary">
+        <span class="material-symbols-outlined">inventory_2</span>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total de Artículos</span>
+        <span class="stat-value">{{ totalProducts() }}</span>
+      </div>
+    </div>
+
+    <!-- Valor Total del Inventario -->
+    <div class="card stat-card">
+      <div class="stat-icon-wrapper stat-success">
+        <span class="material-symbols-outlined">payments</span>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Valor Total del Inventario</span>
+        <span class="stat-value">{{ totalValue() | currency }}</span>
+      </div>
+    </div>
+
+    <!-- Artículos con Stock Bajo -->
+    <div class="card stat-card">
+      <div class="stat-icon-wrapper stat-warning">
+        <span class="material-symbols-outlined">warning</span>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Artículos con Stock Bajo</span>
+        <span class="stat-value">{{ lowStockProducts() }}</span>
+      </div>
+    </div>
+
+    <!-- Categorías Registradas -->
+    <div class="card stat-card">
+      <div class="stat-icon-wrapper stat-purple">
+        <span class="material-symbols-outlined">category</span>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Categorías Registradas</span>
+        <span class="stat-value">{{ categories().length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Detalles -->
+  <div class="details-grid">
+    <!-- Producto Más Caro -->
+    <div class="card detail-card">
+      <h3>Producto Más Caro</h3>
+      @if (mostExpensiveProduct()) {
+        <div class="expensive-product-info">
+          <h4>{{ mostExpensiveProduct()?.name }}</h4>
+          <p class="description">{{ mostExpensiveProduct()?.description }}</p>
+          <div class="price-tag">{{ mostExpensiveProduct()?.price | currency }}</div>
+        </div>
+      } @else {
+        <p class="empty-state">No hay productos registrados.</p>
+      }
+    </div>
+
+    <!-- Desglose por Categorías -->
+    <div class="card detail-card">
+      <h3>Desglose por Categorías</h3>
+      @if (categories().length > 0) {
+        <ul class="category-list">
+          @for (category of categories(); track category.name) {
+            <li class="category-item">
+              <span class="category-name">{{ category.name }}</span>
+              <span class="category-count">{{ category.count }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">No hay categorías registradas.</p>
+      }
+    </div>
+  </div>
+</div>

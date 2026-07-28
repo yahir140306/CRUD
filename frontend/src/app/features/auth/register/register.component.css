@@ -1,0 +1,16 @@
+/* Styles moved to global styles.css */
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.reg-card { max-width: 480px; }
+.brand-title { color: var(--primary); }
+.brand-sub { text-transform: uppercase; letter-spacing: 0.1em; font-size: 12px; margin-bottom: 24px; }
+.title { font-size: 24px; margin-bottom: 8px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ico-left { position: absolute; left: 12px; color: var(--outline); }
+.pad-left { padding-left: 44px; }
+.err-flex { color: var(--error); font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.err-ico { font-size: 14px; }
+.ico-right { font-size: 18px; }

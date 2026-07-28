@@ -1,0 +1,22 @@
+# Node
+node_modules/
+dist/
+.angular/
+
+# Java/Spring Boot
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

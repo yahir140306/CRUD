@@ -1,0 +1,91 @@
+<main class="auth-container">
+  <div class="auth-card fade-in">
+    <!-- Brand -->
+    <div class="brand-header">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined icon-fill">dataset</span>
+      </div>
+      <h1>Nexus CRM</h1>
+      <p>Bienvenido de nuevo. Ingrese sus credenciales para acceder.</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="nombre@empresa.com"
+            autocomplete="email"
+          />
+        </div>
+        <div class="error-text">
+          @if (loginForm.controls.email.invalid && (loginForm.controls.email.dirty || loginForm.controls.email.touched)) {
+            @if (loginForm.controls.email.errors?.['required']) {
+              <span>Email es requerido</span>
+            }
+            @if (loginForm.controls.email.errors?.['email']) {
+              <span>Email inválido</span>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <div class="label-row">
+          <label for="password">Contraseña</label>
+        </div>
+        <div class="input-wrapper">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button type="button" class="icon-btn" (click)="togglePassword()">
+            <span class="material-symbols-outlined">
+              {{ showPassword() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </div>
+        <div class="error-text">
+          @if (loginForm.controls.password.invalid && (loginForm.controls.password.dirty || loginForm.controls.password.touched)) {
+            @if (loginForm.controls.password.errors?.['required']) {
+              <span>Contraseña es requerida</span>
+            }
+            @if (loginForm.controls.password.errors?.['minlength']) {
+              <span>Mínimo 6 caracteres</span>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <button type="submit" class="btn-primary" [disabled]="loading() || loginForm.invalid">
+        @if (loading()) {
+          <span class="material-symbols-outlined spinner">sync</span>
+          <span>Autenticando...</span>
+        } @else {
+          <span>Iniciar Sesión</span>
+        }
+      </button>
+
+      <!-- Footer Link -->
+      <div class="auth-footer">
+        <p>¿Aún no tienes una cuenta? <a routerLink="/register">Crear una nueva cuenta</a></p>
+      </div>
+    </form>
+  </div>
+</main>

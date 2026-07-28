@@ -1,0 +1,136 @@
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="auth-form gap">
+  <!-- Campo: Nombre del producto -->
+  <div class="form-group">
+    <label for="name">Nombre del producto</label>
+    <div class="input-wrapper">
+      <span class="material-symbols-outlined ico-left">inventory_2</span>
+      <input
+        id="name"
+        type="text"
+        placeholder="Ej. Precision Workstation X1"
+        formControlName="name"
+        class="pad-left"
+      />
+    </div>
+    <div class="error-text">
+      @if (productForm.controls.name.invalid && (productForm.controls.name.dirty || productForm.controls.name.touched)) {
+        @if (productForm.controls.name.errors?.['required']) {
+          <span>Nombre es requerido</span>
+        }
+        @if (productForm.controls.name.errors?.['minlength']) {
+          <span>Mínimo 5 caracteres</span>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Campo: Descripción detallada -->
+  <div class="form-group">
+    <label for="description">Descripción detallada</label>
+    <div class="input-wrapper">
+      <span class="material-symbols-outlined ico-txt">description</span>
+      <textarea
+        id="description"
+        placeholder="Hardware corporativo para desarrolladores"
+        formControlName="description"
+        class="pad-txt"
+      ></textarea>
+    </div>
+    <div class="error-text">
+      @if (productForm.controls.description.invalid && (productForm.controls.description.dirty || productForm.controls.description.touched)) {
+        @if (productForm.controls.description.errors?.['required']) {
+          <span>Descripción es requerida</span>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Campo: Precio -->
+  <div class="form-group">
+    <label for="price">Precio ($)</label>
+    <div class="input-wrapper">
+      <span class="material-symbols-outlined ico-left">payments</span>
+      <input
+        id="price"
+        type="number"
+        placeholder="0.00"
+        formControlName="price"
+        class="pad-left"
+      />
+    </div>
+    <div class="error-text">
+      @if (productForm.controls.price.invalid && (productForm.controls.price.dirty || productForm.controls.price.touched)) {
+        @if (productForm.controls.price.errors?.['required']) {
+          <span>Precio es requerido</span>
+        }
+        @if (productForm.controls.price.errors?.['min']) {
+          <span>El precio no puede ser negativo</span>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Campo: Stock (Cantidad en existencia) -->
+  <div class="form-group">
+    <label for="stock">Stock (Cantidad)</label>
+    <div class="input-wrapper">
+      <span class="material-symbols-outlined ico-left">inventory</span>
+      <input
+        id="stock"
+        type="number"
+        placeholder="0"
+        formControlName="stock"
+        class="pad-left"
+      />
+    </div>
+    <div class="error-text">
+      @if (productForm.controls.stock.invalid && (productForm.controls.stock.dirty || productForm.controls.stock.touched)) {
+        @if (productForm.controls.stock.errors?.['required']) {
+          <span>Stock es requerido</span>
+        }
+        @if (productForm.controls.stock.errors?.['min']) {
+          <span>El stock no puede ser negativo</span>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Campo: Categoría (Desplegable) -->
+  <div class="form-group">
+    <label for="category">Categoría</label>
+    <div class="input-wrapper wrap-rel">
+      <span class="material-symbols-outlined ico-sel">category</span>
+      <select
+        id="category"
+        formControlName="category"
+        class="pad-left"
+      >
+        <option value="" disabled selected>Selecciona una categoría</option>
+        <option value="Electrónicos">Electrónicos</option>
+        <option value="Muebles">Muebles</option>
+        <option value="Alimentos">Alimentos</option>
+        <option value="Ropa">Ropa</option>
+        <option value="Herramientas">Herramientas</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="error-text">
+      @if (productForm.controls.category.invalid && (productForm.controls.category.dirty || productForm.controls.category.touched)) {
+        @if (productForm.controls.category.errors?.['required']) {
+          <span>Categoría es requerida</span>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="actions">
+    <button type="submit" class="btn-primary flex-1" [disabled]="productForm.invalid">
+      <span class="material-symbols-outlined">{{ productForm.controls.id.value > 0 ? 'save' : 'add_circle' }}</span>
+      <span>{{ productForm.controls.id.value > 0 ? 'Actualizar' : 'Crear' }}</span>
+    </button>
+    <button type="button" class="btn-secondary clear" (click)="clean()" title="Limpiar formulario">
+      <span class="material-symbols-outlined ico-mid">backspace</span>
+    </button>
+  </div>
+</form>
