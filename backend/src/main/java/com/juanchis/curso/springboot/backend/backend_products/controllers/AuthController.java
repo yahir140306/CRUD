@@ -61,7 +61,10 @@ public class AuthController {
     }
 
     @GetMapping("/make-admin")
-    public ResponseEntity<MessageResponse> makeAdmin(@RequestParam String email) {
+    public ResponseEntity<MessageResponse> makeAdmin(@RequestParam String email, @RequestParam String secret) {
+        if (!"secreto_super_seguro_123".equals(secret)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse("No autorizado"));
+        }
         MessageResponse response = authService.makeAdmin(email);
         return ResponseEntity.ok(response);
     }

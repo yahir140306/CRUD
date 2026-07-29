@@ -23,6 +23,7 @@ public class User {
 
     private String username;
     private String lastname;
+    @JsonIgnore
     private String password;
     private String email;
     private String role = "ROLE_USER"; // Por defecto todos son usuarios normales
