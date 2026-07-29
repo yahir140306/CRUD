@@ -1,0 +1,52 @@
+<div class="header">
+  <div class="title">
+    <h2>Gestión de Usuarios</h2>
+    <p>Asigna o revoca el acceso de administrador a los empleados.</p>
+  </div>
+</div>
+
+<div class="card p-0">
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Correo</th>
+          <th>Rol</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr class="table-row">
+            <td class="font-code text-primary">USR-{{ user.id }}</td>
+            <td>
+              <div class="product-name-cell">
+                <div class="icon-box-small">
+                  <span class="material-symbols-outlined">person</span>
+                </div>
+                <span>{{ user.username }}</span>
+              </div>
+            </td>
+            <td>{{ user.lastname }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <select 
+                class="form-select role-select" 
+                [ngModel]="user.role" 
+                (ngModelChange)="onRoleChange(user, $event)">
+                <option value="ROLE_USER">Empleado (Sin Permisos)</option>
+                <option value="ROLE_ADMIN">Administrador</option>
+              </select>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="text-center" style="padding: 24px;">No se encontraron usuarios.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

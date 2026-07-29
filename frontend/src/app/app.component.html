@@ -19,6 +19,12 @@
           <span class="material-symbols-outlined icon-fill">dashboard</span>
           <span>Tablero</span>
         </a>
+        @if (authService.getRole() === 'ROLE_ADMIN') {
+          <a class="nav-link" routerLink="/users" routerLinkActive="active">
+            <span class="material-symbols-outlined">group</span>
+            <span>Gestión de Usuarios</span>
+          </a>
+        }
         <a class="nav-link" routerLink="/products" routerLinkActive="active">
           <span class="material-symbols-outlined">inventory_2</span>
           <span>Artículos</span>
