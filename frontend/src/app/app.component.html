@@ -1,7 +1,12 @@
 @if (authService.isAuthenticated()) {
   <div class="dashboard-shell">
+    <!-- Fondo oscuro (overlay) para móvil cuando se abre el sidebar -->
+    @if (isSidebarOpen()) {
+      <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+    }
+
     <!-- Barra Lateral (Sidebar) -->
-    <aside class="sidebar">
+    <aside class="sidebar" [class.open]="isSidebarOpen()">
       <!-- Marca / Logo -->
       <div class="sidebar-brand">
         <div class="brand-icon-box" style="background-color: var(--success); color: white;">
@@ -37,6 +42,11 @@
       <!-- Barra Superior -->
       <header class="top-header">
         <div class="header-left">
+          <!-- Botón menú hamburguesa (solo móvil) -->
+          <button class="icon-btn mobile-menu-btn" (click)="toggleSidebar()">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
           @if (showSearch) {
             <div class="search-box">
               <span class="material-symbols-outlined search-icon">search</span>
@@ -55,10 +65,12 @@
 
           <!-- Menú de Usuario -->
           <div class="user-menu-wrapper">
-            <button class="user-menu-btn" (click)="toggleProfileMenu()">
-              {{ authService.getUsername() }}
-              <span class="material-symbols-outlined expand-icon">expand_more</span>
-            </button>
+            <div class="user-menu-container">
+              <span class="user-name-text">{{ authService.getUsername() }}</span>
+              <button class="icon-btn profile-dropdown-btn" (click)="toggleProfileMenu()">
+                <span class="material-symbols-outlined">expand_more</span>
+              </button>
+            </div>
 
             @if (showProfileMenu()) {
               <div class="dropdown-menu fade-in">

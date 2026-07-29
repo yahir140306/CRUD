@@ -14,6 +14,7 @@ import { ToastService } from './core/services/toast.service';
 export class AppComponent implements OnInit {
   isDark = signal(true);
   showProfileMenu = signal(false);
+  isSidebarOpen = signal(true);
   authService = inject(AuthService);
   private router = inject(Router);
   private productService = inject(ProductService);
@@ -47,6 +48,16 @@ export class AppComponent implements OnInit {
   // Muestra u oculta el menú desplegable del perfil
   toggleProfileMenu() {
     this.showProfileMenu.update(v => !v);
+  }
+
+  // Muestra u oculta la barra lateral en móviles
+  toggleSidebar() {
+    this.isSidebarOpen.update(v => !v);
+  }
+
+  // Cierra la barra lateral (útil al hacer clic en un enlace)
+  closeSidebar() {
+    this.isSidebarOpen.set(false);
   }
 
   // Verifica si debe mostrar la barra de búsqueda (solo en artículos)

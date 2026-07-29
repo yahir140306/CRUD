@@ -274,7 +274,7 @@
     align-items: flex-start;
   }
   .form-card {
-    flex: 0 0 350px;
+    flex: 0 0 280px; /* Formulario mucho más pequeño */
   }
   .table-card-wrapper {
     flex: 1;

@@ -3,6 +3,7 @@
   height: 100vh;
   overflow: hidden;
   background-color: var(--background);
+  position: relative;
 }
 
 .sidebar {
@@ -14,6 +15,15 @@
   padding: 24px 0;
   z-index: 50;
   flex-shrink: 0;
+  transition: width 0.3s ease, padding 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar:not(.open) {
+  width: 0;
+  padding: 0;
+  border-right: none;
 }
 
 .sidebar-brand {
@@ -87,6 +97,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100vh;
+  width: 100%;
 }
 
 .top-header {
@@ -98,12 +110,33 @@
   justify-content: space-between;
   padding: 0 24px;
   z-index: 40;
+  flex-shrink: 0;
+  width: 100%;
 }
 
-.header-left, .header-right {
+.header-left {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1; /* Permite que el lado izquierdo ocupe el espacio sobrante */
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto; /* Empuja el menú de usuario lo más a la derecha posible */
+}
+
+.mobile-menu-btn {
+  display: block;
+  position: static; /* Vital para que no se comporte como el ícono de password */
+  padding: 8px;
+  margin-right: 12px;
+  color: var(--on-surface);
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .search-box {
@@ -130,7 +163,7 @@
 }
 
 .theme-btn {
-  position: static; /* Overrides absolute position from .icon-btn */
+  position: static;
   color: var(--primary);
   padding: 8px;
   border-radius: 50%;
@@ -140,12 +173,6 @@
   background-color: var(--surface-container-high);
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .user-menu-wrapper {
   position: relative;
   border-left: 1px solid var(--outline-variant);
@@ -153,18 +180,32 @@
   margin-left: 8px;
 }
 
-.user-menu-btn {
+.user-menu-container {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 16px; /* Separación garantizada de 16px */
+}
+
+.user-name-text {
+  font-size: 14px;
   font-weight: 600;
   color: var(--on-surface);
 }
 
-.user-menu-btn:hover {
-  color: var(--primary);
+.profile-dropdown-btn {
+  position: static;
+  padding: 4px;
+  color: var(--on-surface);
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  cursor: pointer;
 }
+
+.profile-dropdown-btn:hover {
+  background-color: var(--surface-container-high);
+}
+
 
 .dropdown-menu {
   position: absolute;
@@ -188,6 +229,10 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--on-surface);
 }
 
 .dropdown-item:hover {
@@ -258,4 +303,80 @@
 .theme-btn-floating {
   background: var(--surface-container);
   border-radius: 50%;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 45;
+  backdrop-filter: blur(2px);
+}
+
+/* Media Queries para Mobile Responsivo */
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    width: 260px;
+    padding: 24px 0;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar:not(.open) {
+    width: 260px; /* En móvil mantenemos su ancho pero lo escondemos con transform */
+    border-right: 1px solid var(--outline-variant);
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .top-header {
+    padding: 0 16px;
+  }
+  
+  .top-header .theme-btn {
+    display: none; /* Ocultar el botón de tema en móvil para ahorrar espacio */
+  }
+
+  .search-box input {
+    width: 100px; /* Reducir barra de busqueda en movil */
+  }
+
+  .user-name-text {
+    display: none; /* Ocultar el nombre de usuario en móvil, solo dejar la foto */
+  }
+
+  .user-menu-wrapper {
+    padding-left: 8px;
+    margin-left: 4px;
+  }
+  
+  .content-canvas {
+    padding: 16px; /* Menos padding lateral en móvil para ganar espacio */
+  }
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    padding: 4px 10px;
+  }
+  .search-box input {
+    width: 80px;
+    font-size: 12px;
+  }
+  .brand-title {
+    font-size: 16px;
+  }
+  .user-menu-btn {
+    font-size: 11px; /* Para evitar sobreposición en pantallas muy chicas */
+  }
 }
