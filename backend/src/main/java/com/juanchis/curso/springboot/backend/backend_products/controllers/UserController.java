@@ -34,13 +34,18 @@ public class UserController {
     @PutMapping("/{id}/role")
     public ResponseEntity<User> updateRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String role = body.get("role");
-        if (role == null || (!role.equals("ROLE_ADMIN") && !role.equals("ROLE_USER"))) {
+        if (role == null || (!role.equals("ROLE_ADMIN") && !role.equals("ROLE_USER") && !role.equals("ROLE_OWNER"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol inválido");
         }
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         
+        // Regla de negocio: Nadie puede quitarle los permisos al Dueño Creador
+        if (user.getRole() != null && user.getRole().equals("ROLE_OWNER") && !role.equals("ROLE_OWNER")) {
+             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes modificar al Dueño del sistema");
+        }
+
         user.setRole(role);
         return ResponseEntity.ok(userRepository.save(user));
     }
