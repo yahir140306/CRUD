@@ -26,15 +26,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<Product> findAllForCurrentUser(Pageable pageable) {
-        User user = authService.getAuthenticatedUser();
-        return productRepository.findByUser(user, pageable);
+        return productRepository.findAll(pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Product findByIdForCurrentUser(Long id) {
-        User user = authService.getAuthenticatedUser();
-        return productRepository.findByIdAndUser(id, user)
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
     }
 
@@ -49,23 +47,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product updateForCurrentUser(Long id, Product product) {
-        User user = authService.getAuthenticatedUser();
-        productRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "No tienes permiso para editar este producto"));
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
         product.setId(id);
-        product.setUser(user);
+        product.setUser(existing.getUser()); // Conservar el usuario original que lo creó
         return productRepository.save(product);
     }
 
     @Override
     @Transactional
     public Product deleteForCurrentUser(Long id) {
-        User user = authService.getAuthenticatedUser();
-        Product product = productRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "No tienes permiso para eliminar este producto"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
         productRepository.delete(product);
         return product;
