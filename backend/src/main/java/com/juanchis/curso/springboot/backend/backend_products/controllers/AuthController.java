@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.juanchis.curso.springboot.backend.backend_products.dto.AuthResponse;
 import com.juanchis.curso.springboot.backend.backend_products.dto.LoginRequest;
@@ -55,6 +57,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> updateProfile(@RequestHeader("Authorization") String authHeader, @RequestBody UpdateProfileRequest request) {
         String token = authHeader.replace("Bearer ", "");
         AuthResponse response = authService.updateProfile(token, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/make-admin")
+    public ResponseEntity<MessageResponse> makeAdmin(@RequestParam String email) {
+        MessageResponse response = authService.makeAdmin(email);
         return ResponseEntity.ok(response);
     }
 }

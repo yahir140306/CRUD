@@ -58,6 +58,14 @@ public class AuthService {
         return new MessageResponse("Usuario registrado exitosamente");
     }
 
+    public MessageResponse makeAdmin(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        user.setRole("ROLE_ADMIN");
+        userRepository.save(user);
+        return new MessageResponse("Usuario actualizado a ADMIN");
+    }
+
     public AuthResponse login(LoginRequest loginRequest) {
         try {
             authManager.authenticate(
@@ -74,7 +82,8 @@ public class AuthService {
         String token = jwtUtils.generateToken(user.getEmail());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthResponse(token, refreshToken.getToken(), user.getUsername(), user.getRole());
+        String userRole = user.getRole() != null ? user.getRole() : "ROLE_USER";
+        return new AuthResponse(token, refreshToken.getToken(), user.getUsername(), userRole);
     }
 
     public AuthResponse refreshToken(String requestRefreshToken) {
@@ -83,7 +92,8 @@ public class AuthService {
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String token = jwtUtils.generateToken(user.getEmail());
-                    return new AuthResponse(token, requestRefreshToken, user.getUsername(), user.getRole());
+                    String userRole = user.getRole() != null ? user.getRole() : "ROLE_USER";
+                    return new AuthResponse(token, requestRefreshToken, user.getUsername(), userRole);
                 })
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token no encontrado"));
@@ -122,6 +132,7 @@ public class AuthService {
         String newToken = jwtUtils.generateToken(user.getEmail());
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthResponse(newToken, newRefreshToken.getToken(), user.getUsername(), user.getRole());
+        String userRole = user.getRole() != null ? user.getRole() : "ROLE_USER";
+        return new AuthResponse(newToken, newRefreshToken.getToken(), user.getUsername(), userRole);
     }
 }
