@@ -1,5 +1,6 @@
 package com.juanchis.curso.springboot.backend.backend_products.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +21,9 @@ public class Product {
     private Long price;
     private Long stock;
     private String category;
+    
+    @Column(columnDefinition = "TEXT")
+    private String imageBase64;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -71,6 +75,14 @@ public class Product {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getImageBase64() {
+        return imageBase64;
+    }
+
+    public void setImageBase64(String imageBase64) {
+        this.imageBase64 = imageBase64;
     }
 
     public User getUser() {

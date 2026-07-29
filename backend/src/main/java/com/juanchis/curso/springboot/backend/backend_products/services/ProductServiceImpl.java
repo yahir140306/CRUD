@@ -1,6 +1,7 @@
 package com.juanchis.curso.springboot.backend.backend_products.services;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findAllForCurrentUser() {
+    public Page<Product> findAllForCurrentUser(Pageable pageable) {
         User user = authService.getAuthenticatedUser();
-        return productRepository.findByUser(user);
+        return productRepository.findByUser(user, pageable);
     }
 
     @Override

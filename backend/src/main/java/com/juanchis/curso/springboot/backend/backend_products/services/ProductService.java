@@ -1,12 +1,13 @@
 package com.juanchis.curso.springboot.backend.backend_products.services;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.juanchis.curso.springboot.backend.backend_products.entities.Product;
 
 public interface ProductService {
 
-    List<Product> findAllForCurrentUser();
+    Page<Product> findAllForCurrentUser(Pageable pageable);
 
     Product findByIdForCurrentUser(Long id);
 

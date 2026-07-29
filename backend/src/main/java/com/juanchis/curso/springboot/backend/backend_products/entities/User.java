@@ -25,6 +25,7 @@ public class User {
     private String lastname;
     private String password;
     private String email;
+    private String role = "ROLE_USER"; // Por defecto todos son usuarios normales
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -68,6 +69,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public List<Product> getProducts() {

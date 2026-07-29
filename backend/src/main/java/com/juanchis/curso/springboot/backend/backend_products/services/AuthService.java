@@ -74,7 +74,7 @@ public class AuthService {
         String token = jwtUtils.generateToken(user.getEmail());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthResponse(token, refreshToken.getToken(), user.getUsername());
+        return new AuthResponse(token, refreshToken.getToken(), user.getUsername(), user.getRole());
     }
 
     public AuthResponse refreshToken(String requestRefreshToken) {
@@ -83,7 +83,7 @@ public class AuthService {
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String token = jwtUtils.generateToken(user.getEmail());
-                    return new AuthResponse(token, requestRefreshToken, user.getUsername());
+                    return new AuthResponse(token, requestRefreshToken, user.getUsername(), user.getRole());
                 })
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token no encontrado"));
@@ -122,6 +122,6 @@ public class AuthService {
         String newToken = jwtUtils.generateToken(user.getEmail());
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthResponse(newToken, newRefreshToken.getToken(), user.getUsername());
+        return new AuthResponse(newToken, newRefreshToken.getToken(), user.getUsername(), user.getRole());
     }
 }
