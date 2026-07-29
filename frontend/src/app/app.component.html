@@ -19,7 +19,7 @@
           <span class="material-symbols-outlined icon-fill">dashboard</span>
           <span>Tablero</span>
         </a>
-        @if (authService.getRole() === 'ROLE_ADMIN' || authService.getRole() === 'ROLE_OWNER') {
+        @if (authService.getRole() === 'ROLE_OWNER') {
           <a class="nav-link" routerLink="/users" routerLinkActive="active">
             <span class="material-symbols-outlined">group</span>
             <span>Gestión de Usuarios</span>
