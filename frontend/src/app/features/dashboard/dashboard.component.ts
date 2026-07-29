@@ -53,8 +53,8 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     // Obtenemos los productos al iniciar el componente
-    this.productService.findAll().subscribe({
-      next: (data: Product[]) => this.products.set(data),
+    this.productService.findAll(0, 1000).subscribe({
+      next: (response: any) => this.products.set(response.content),
       error: (err: any) => console.error('Error al cargar productos', err),
     });
   }

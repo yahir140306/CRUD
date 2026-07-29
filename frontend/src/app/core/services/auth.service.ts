@@ -15,6 +15,7 @@ export interface LoginResponse {
   username: string;
   email: string;
   lastname: string;
+  role: string;
 }
 
 export interface RegisterRequest {
@@ -42,6 +43,7 @@ export class AuthService {
           localStorage.setItem('auth_token', response.token);
           if (response.refreshToken) localStorage.setItem('refresh_token', response.refreshToken);
           localStorage.setItem('profileName', response.username);
+          localStorage.setItem('role', response.role);
           this.isAuthenticated.set(true);
         }),
       );
@@ -57,6 +59,7 @@ export class AuthService {
         tap((response) => {
           localStorage.setItem('auth_token', response.token);
           if (response.refreshToken) localStorage.setItem('refresh_token', response.refreshToken);
+          localStorage.setItem('role', response.role);
           this.isAuthenticated.set(true);
         }),
       );
@@ -76,6 +79,7 @@ export class AuthService {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('profileName');
+    localStorage.removeItem('role');
     this.isAuthenticated.set(false);
     return this.http.post(`${this.apiUrl}/logout`, { refreshToken });
   }
@@ -87,6 +91,7 @@ export class AuthService {
           localStorage.setItem('auth_token', response.token);
           localStorage.setItem('refresh_token', response.refreshToken);
           localStorage.setItem('profileName', response.username);
+          localStorage.setItem('role', response.role);
         }
       })
     );
@@ -99,5 +104,9 @@ export class AuthService {
 
   getUsername(): string | null {
     return localStorage.getItem('profileName');
+  }
+
+  getRole(): string | null {
+    return localStorage.getItem('role');
   }
 }

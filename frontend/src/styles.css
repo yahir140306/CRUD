@@ -49,9 +49,12 @@
   --on-primary: #ffffff;
   --primary-fixed: #dbe1ff;
   --on-tertiary-fixed: #360f00;
+  
+  --bg-color: #faf8ff;
+  --text-color: #131b2e;
 }
 
-[data-theme="dark"] {
+.dark-theme {
   --background: #0b1221;
   --on-background: #eef0ff;
   --surface: #283044;
@@ -72,6 +75,9 @@
   --on-error: #690005;
   --error-container: #93000a;
   --on-error-container: #ffdad6;
+
+  --bg-color: #0b1221;
+  --text-color: #eef0ff;
 }
 
 * {
@@ -82,8 +88,8 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--background);
-  color: var(--on-background);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;

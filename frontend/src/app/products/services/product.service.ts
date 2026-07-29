@@ -15,8 +15,8 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.url);
+  findAll(page: number, size: number): Observable<any> {
+    return this.http.get<any>(`${this.url}?page=${page}&size=${size}`);
   }
 
   create(product: Product): Observable<Product> {

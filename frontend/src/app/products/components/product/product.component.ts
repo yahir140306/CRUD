@@ -27,8 +27,10 @@ export class ProductComponent implements OnInit {
   // Señales para la paginación
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(5);
+  totalPages = signal<number>(1);
+  role = signal<string | null>(null);
 
-  // Computed: Filtra productos según el término de búsqueda del buscador global
+  // Filtro de frontend opcional
   filteredProducts = computed(() => {
     const term = this.service.searchTerm().toLowerCase();
     return this.products().filter(
@@ -36,30 +38,24 @@ export class ProductComponent implements OnInit {
     );
   });
 
-  // Computed: Extrae solo los productos de la página actual
-  paginatedProducts = computed(() => {
-    const start = (this.currentPage() - 1) * this.itemsPerPage();
-    const end = start + this.itemsPerPage();
-    return this.filteredProducts().slice(start, end);
-  });
-
-  // Computed: Calcula el total de páginas disponibles
-  totalPages = computed(() => {
-    return Math.ceil(this.filteredProducts().length / this.itemsPerPage());
-  });
-
   ngOnInit(): void {
-    // Cargar la lista de productos del usuario autenticado
-    this.service.findAll().subscribe((productsList: Product[]) => {
-      this.products.set(productsList);
-    });
+    this.role.set(this.authService.getRole());
     this.username.set(this.authService.getUsername());
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
+    this.service.findAll(this.currentPage() - 1, this.itemsPerPage()).subscribe((response: any) => {
+      this.products.set(response.content);
+      this.totalPages.set(response.totalPages);
+    });
   }
 
   // Navega a la página siguiente
   nextPage(): void {
     if (this.currentPage() < this.totalPages()) {
       this.currentPage.update((p) => p + 1);
+      this.loadProducts();
     }
   }
 
@@ -67,6 +63,7 @@ export class ProductComponent implements OnInit {
   prevPage(): void {
     if (this.currentPage() > 1) {
       this.currentPage.update((p) => p - 1);
+      this.loadProducts();
     }
   }
 
@@ -74,6 +71,7 @@ export class ProductComponent implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages()) {
       this.currentPage.set(page);
+      this.loadProducts();
     }
   }
 
@@ -94,6 +92,7 @@ export class ProductComponent implements OnInit {
         next: (productNew: Product) => {
           this.products.update((currentProducts) => [...currentProducts, { ...productNew }]);
           this.toastService.show('Producto creado exitosamente', 'success');
+          this.loadProducts();
         },
         error: () => this.toastService.show('Error al crear el producto', 'error')
       });
@@ -124,6 +123,7 @@ export class ProductComponent implements OnInit {
           if (this.currentPage() > this.totalPages() && this.totalPages() > 0) {
             this.currentPage.set(this.totalPages());
           }
+          this.loadProducts();
           this.toastService.show('Producto eliminado exitosamente', 'info');
         },
         error: () => this.toastService.show('Error al eliminar el producto', 'error')

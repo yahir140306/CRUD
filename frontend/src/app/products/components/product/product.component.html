@@ -37,13 +37,17 @@
             </tr>
           </thead>
           <tbody>
-            @for (product of paginatedProducts(); track $index) {
+            @for (product of filteredProducts(); track $index) {
               <tr class="table-row">
                 <td class="font-code text-primary">NX-{{ product.id | number:'3.0' }}</td>
                 <td>
                   <div class="product-name-cell">
-                    <div class="icon-box-small">
-                      <span class="material-symbols-outlined">inventory_2</span>
+                    <div class="icon-box-small" style="overflow: hidden;">
+                      @if (product.imageBase64) {
+                        <img [src]="product.imageBase64" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                      } @else {
+                        <span class="material-symbols-outlined">inventory_2</span>
+                      }
                     </div>
                     <span>{{ product.name }}</span>
                   </div>
@@ -64,14 +68,16 @@
                 </td>
                 <td>{{ product.category }}</td>
                 <td class="text-right">
-                  <div class="actions-cell">
-                    <button class="icon-btn-ghost text-primary" (click)="onUpdateProduct(product)" title="Editar">
-                      <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="icon-btn-ghost text-danger" (click)="onRemoveProduct(product)" title="Eliminar">
-                      <span class="material-symbols-outlined">delete</span>
-                    </button>
-                  </div>
+                  @if (role() === 'ROLE_ADMIN') {
+                    <div class="actions-cell">
+                      <button class="icon-btn-ghost text-primary" (click)="onUpdateProduct(product)" title="Editar">
+                        <span class="material-symbols-outlined">edit</span>
+                      </button>
+                      <button class="icon-btn-ghost text-danger" (click)="onRemoveProduct(product)" title="Eliminar">
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+                  }
                 </td>
               </tr>
             }

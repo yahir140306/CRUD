@@ -123,6 +123,14 @@
     </div>
   </div>
 
+  <!-- Campo: Imagen (Base64) -->
+  <div class="form-group">
+    <label for="image">Imagen del producto</label>
+    <div class="input-wrapper">
+      <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" />
+    </div>
+  </div>
+
   <!-- Botones de acción -->
   <div class="actions">
     <button type="submit" class="btn-primary flex-1" [disabled]="productForm.invalid">

@@ -19,6 +19,7 @@ export class ProductFormComponent implements OnChanges {
     price: 0,
     stock: 0,
     category: '',
+    imageBase64: '',
   };
 
   // Evento que notifica al componente padre cuando se crea o edita un producto
@@ -32,6 +33,7 @@ export class ProductFormComponent implements OnChanges {
     price: [0, [Validators.required, Validators.min(0)]],
     stock: [0, [Validators.required, Validators.min(0)]],
     category: ['', [Validators.required]],
+    imageBase64: [''],
   });
 
   // Cuando el padre cambia el producto (al editar), actualizamos el formulario
@@ -44,6 +46,7 @@ export class ProductFormComponent implements OnChanges {
         price: this.product.price,
         stock: this.product.stock,
         category: this.product.category,
+        imageBase64: this.product.imageBase64 || '',
       });
     }
   }
@@ -58,6 +61,17 @@ export class ProductFormComponent implements OnChanges {
     this.clean();
   }
 
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.productForm.patchValue({ imageBase64: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   // Limpia el formulario a sus valores por defecto
   clean(): void {
     this.productForm.reset({
@@ -67,6 +81,7 @@ export class ProductFormComponent implements OnChanges {
       price: 0,
       stock: 0,
       category: '',
+      imageBase64: '',
     });
   }
 }

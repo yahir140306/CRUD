@@ -37,7 +37,11 @@ export class AppComponent implements OnInit {
 
   // Aplica el tema al documento HTML
   private applyTheme(dark: boolean) {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    if (dark) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   }
 
   // Muestra u oculta el menú desplegable del perfil
