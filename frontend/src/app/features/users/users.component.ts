@@ -3,6 +3,7 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { User } from '../../core/models/user.model';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -14,10 +15,13 @@ import { FormsModule } from '@angular/forms';
 export class UsersComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
   
   users = signal<User[]>([]);
+  currentRole = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.currentRole.set(this.authService.getRole());
     this.loadUsers();
   }
 

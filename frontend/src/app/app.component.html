@@ -4,12 +4,12 @@
     <aside class="sidebar">
       <!-- Marca / Logo -->
       <div class="sidebar-brand">
-        <div class="brand-icon-box">
-          <span class="material-symbols-outlined icon-fill">dataset</span>
+        <div class="brand-icon-box" style="background-color: var(--success); color: white;">
+          <span class="material-symbols-outlined icon-fill">local_pharmacy</span>
         </div>
         <div>
-          <h1 class="brand-title">Nexus Inventario</h1>
-          <p class="brand-subtitle">Gestión de Activos</p>
+          <h1 class="brand-title">FarmaNexus</h1>
+          <p class="brand-subtitle">Inventario de Medicamentos</p>
         </div>
       </div>
 
@@ -19,15 +19,15 @@
           <span class="material-symbols-outlined icon-fill">dashboard</span>
           <span>Tablero</span>
         </a>
-        @if (authService.getRole() === 'ROLE_ADMIN') {
+        @if (authService.getRole() === 'ROLE_ADMIN' || authService.getRole() === 'ROLE_OWNER') {
           <a class="nav-link" routerLink="/users" routerLinkActive="active">
             <span class="material-symbols-outlined">group</span>
             <span>Gestión de Usuarios</span>
           </a>
         }
         <a class="nav-link" routerLink="/products" routerLinkActive="active">
-          <span class="material-symbols-outlined">inventory_2</span>
-          <span>Artículos</span>
+          <span class="material-symbols-outlined">medication</span>
+          <span>Medicamentos</span>
         </a>
       </nav>
     </aside>
@@ -40,7 +40,7 @@
           @if (showSearch) {
             <div class="search-box">
               <span class="material-symbols-outlined search-icon">search</span>
-              <input type="text" placeholder="Buscar artículos..." #searchInput (input)="onSearch(searchInput.value)" />
+              <input type="text" placeholder="Buscar medicamentos..." #searchInput (input)="onSearch(searchInput.value)" />
             </div>
           }
         </div>
@@ -67,7 +67,7 @@
                   <span class="material-symbols-outlined">account_circle</span>
                   <div class="profile-info">
                     <span class="profile-name">{{ authService.getUsername() || 'Usuario' }}</span>
-                    <span class="profile-email">Nexus Inventario</span>
+                    <span class="profile-email">FarmaNexus</span>
                   </div>
                 </div>
                 <hr class="dropdown-divider" />

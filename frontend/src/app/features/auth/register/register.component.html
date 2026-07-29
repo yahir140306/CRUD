@@ -2,11 +2,11 @@
   <div class="auth-card fade-in reg-card">
     <!-- Brand -->
     <div class="brand-header">
-      <div class="brand-icon">
-        <span class="material-symbols-outlined icon-fill">dataset</span>
+      <div class="brand-icon" style="background-color: var(--success); color: white;">
+        <span class="material-symbols-outlined icon-fill">local_pharmacy</span>
       </div>
-      <h1 class="brand-title">Nexus CRM</h1>
-      <p class="brand-sub">Suite Empresarial</p>
+      <h1 class="brand-title">FarmaNexus</h1>
+      <p class="brand-sub">Sistema de Farmacia</p>
       
       <h2 class="title">Crear Cuenta</h2>
       <p>Ingresa tus datos para acceder a tu espacio de trabajo.</p>
@@ -33,8 +33,15 @@
               formControlName="username"
               placeholder="Juan"
               class="pad-left"
+              [class.input-error]="registerForm.controls.username.invalid && registerForm.controls.username.touched"
             />
           </div>
+          @if (registerForm.controls.username.invalid && registerForm.controls.username.touched) {
+            <div class="error-text err-flex">
+              <span class="material-symbols-outlined err-ico">error</span>
+              <span>El nombre es obligatorio</span>
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -47,8 +54,15 @@
               formControlName="lastname"
               placeholder="Pérez"
               class="pad-left"
+              [class.input-error]="registerForm.controls.lastname.invalid && registerForm.controls.lastname.touched"
             />
           </div>
+          @if (registerForm.controls.lastname.invalid && registerForm.controls.lastname.touched) {
+            <div class="error-text err-flex">
+              <span class="material-symbols-outlined err-ico">error</span>
+              <span>El apellido es obligatorio</span>
+            </div>
+          }
         </div>
       </div>
 
@@ -61,11 +75,18 @@
             id="email"
             type="email"
             formControlName="email"
-            placeholder="nombre@empresa.com"
+            placeholder="nombre@farmacia.com"
             autocomplete="email"
             class="pad-left"
+            [class.input-error]="registerForm.controls.email.invalid && registerForm.controls.email.touched"
           />
         </div>
+        @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) {
+          <div class="error-text err-flex">
+            <span class="material-symbols-outlined err-ico">error</span>
+            <span>Un correo válido es obligatorio</span>
+          </div>
+        }
       </div>
 
       <!-- Password -->
@@ -80,6 +101,7 @@
             placeholder="••••••••"
             autocomplete="new-password"
             class="pad-left"
+            [class.input-error]="registerForm.controls.password.invalid && registerForm.controls.password.touched"
           />
           <button type="button" class="icon-btn" (click)="togglePassword()">
             <span class="material-symbols-outlined">
@@ -87,6 +109,12 @@
             </span>
           </button>
         </div>
+        @if (registerForm.controls.password.invalid && registerForm.controls.password.touched) {
+          <div class="error-text err-flex">
+            <span class="material-symbols-outlined err-ico">error</span>
+            <span>La contraseña debe tener al menos 6 caracteres</span>
+          </div>
+        }
       </div>
 
       <!-- Confirm Password -->
@@ -101,6 +129,7 @@
             placeholder="••••••••"
             autocomplete="new-password"
             class="pad-left"
+            [class.input-error]="registerForm.controls.confirmPassword.invalid && registerForm.controls.confirmPassword.touched"
           />
         </div>
         <div class="error-text err-flex">

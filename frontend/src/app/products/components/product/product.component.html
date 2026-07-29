@@ -68,7 +68,7 @@
                 </td>
                 <td>{{ product.category }}</td>
                 <td class="text-right">
-                  @if (role() === 'ROLE_ADMIN') {
+                  @if (role() === 'ROLE_ADMIN' || role() === 'ROLE_OWNER') {
                     <div class="actions-cell">
                       <button class="icon-btn-ghost text-primary" (click)="onUpdateProduct(product)" title="Editar">
                         <span class="material-symbols-outlined">edit</span>

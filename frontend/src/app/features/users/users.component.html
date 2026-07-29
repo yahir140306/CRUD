@@ -35,9 +35,13 @@
               <select 
                 class="form-select role-select" 
                 [ngModel]="user.role" 
-                (ngModelChange)="onRoleChange(user, $event)">
+                (ngModelChange)="onRoleChange(user, $event)"
+                [disabled]="user.role === 'ROLE_OWNER' && currentRole() !== 'ROLE_OWNER'">
                 <option value="ROLE_USER">Empleado (Sin Permisos)</option>
                 <option value="ROLE_ADMIN">Administrador</option>
+                @if (currentRole() === 'ROLE_OWNER') {
+                  <option value="ROLE_OWNER">Dueño (Supremo)</option>
+                }
               </select>
             </td>
           </tr>

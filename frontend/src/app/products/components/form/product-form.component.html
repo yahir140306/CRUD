@@ -106,11 +106,11 @@
         class="pad-left"
       >
         <option value="" disabled selected>Selecciona una categoría</option>
-        <option value="Electrónicos">Electrónicos</option>
-        <option value="Muebles">Muebles</option>
-        <option value="Alimentos">Alimentos</option>
-        <option value="Ropa">Ropa</option>
-        <option value="Herramientas">Herramientas</option>
+        <option value="Analgésicos">Analgésicos</option>
+        <option value="Antibióticos">Antibióticos</option>
+        <option value="Vitaminas">Vitaminas</option>
+        <option value="Primeros Auxilios">Primeros Auxilios</option>
+        <option value="Cuidado Personal">Cuidado Personal</option>
         <option value="Otros">Otros</option>
       </select>
     </div>
@@ -127,7 +127,7 @@
   <div class="form-group">
     <label for="image">Imagen del producto</label>
     <div class="input-wrapper">
-      <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" />
+      <input type="file" id="image" #imageInput (change)="onFileSelected($event)" accept="image/*" />
     </div>
   </div>
 

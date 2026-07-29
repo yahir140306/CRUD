@@ -3,6 +3,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastService } from '../../../core/services/toast.service';
 
 export function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -24,6 +25,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
   showPassword = signal(false);
   loading = signal(false);
@@ -70,12 +72,12 @@ export class RegisterComponent {
       })
       .subscribe({
         next: () => {
-          this.success.set('¡Cuenta creada! Redirigiendo al login.');
+          this.toastService.show('¡Usuario creado correctamente!', 'success');
           setTimeout(() => this.router.navigate(['/login']), 1800);
         },
         error: (err: HttpErrorResponse) => {
           const errorMsg = err.error?.message || err.error || err.message || 'Error al registrarse';
-          this.error.set(err.status === 400 ? 'Error al registrarse' : `Error: ${errorMsg}`);
+          this.toastService.show('Error al registrarse', 'error');
           this.loading.set(false);
         },
       });

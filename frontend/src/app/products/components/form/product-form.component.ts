@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { Product } from '../../models/product';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
@@ -10,6 +10,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 })
 export class ProductFormComponent implements OnChanges {
   private fb = inject(FormBuilder);
+  @ViewChild('imageInput') imageInput!: ElementRef;
 
   // Producto por defecto cuando no se está editando
   @Input() product: Product = {
@@ -83,5 +84,8 @@ export class ProductFormComponent implements OnChanges {
       category: '',
       imageBase64: '',
     });
+    if (this.imageInput && this.imageInput.nativeElement) {
+      this.imageInput.nativeElement.value = '';
+    }
   }
 }
