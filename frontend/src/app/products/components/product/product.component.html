@@ -39,10 +39,10 @@
           <tbody>
             @for (product of filteredProducts(); track $index) {
               <tr class="table-row">
-                <td class="font-code text-primary">NX-{{ product.id | number:'3.0' }}</td>
-                <td>
+                <td data-label="ID" class="font-code text-primary">NX-{{ product.id | number:'3.0' }}</td>
+                <td data-label="NOMBRE">
                   <div class="product-name-cell">
-                    <div class="icon-box-small" style="overflow: hidden;">
+                    <div class="icon-box-small" style="overflow: hidden; cursor: pointer;" (click)="product.imageBase64 ? imageToView.set(product.imageBase64) : null">
                       @if (product.imageBase64) {
                         <img [src]="product.imageBase64" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
                       } @else {
@@ -52,11 +52,11 @@
                     <span>{{ product.name }}</span>
                   </div>
                 </td>
-                <td class="text-muted">{{ product.description }}</td>
-                <td>
+                <td data-label="DESCRIPCIÓN" class="text-muted">{{ product.description }}</td>
+                <td data-label="PRECIO">
                   <span class="chip chip-success">${{ product.price }}</span>
                 </td>
-                <td>
+                <td data-label="STOCK">
                   <!-- Chip de color según nivel de stock -->
                   @if (product.stock > 10) {
                     <span class="chip chip-success">{{ product.stock }} ud.</span>
@@ -66,18 +66,21 @@
                     <span class="chip chip-danger">Agotado</span>
                   }
                 </td>
-                <td>{{ product.category }}</td>
-                <td class="text-right">
-                  @if (role() === 'ROLE_ADMIN' || role() === 'ROLE_OWNER') {
-                    <div class="actions-cell">
+                <td data-label="CATEGORÍA">{{ product.category }}</td>
+                <td data-label="ACCIONES" class="text-right">
+                  <div class="actions-cell">
+                    <button class="icon-btn-ghost text-primary" (click)="productDetails.set(product)" title="Ver detalles">
+                      <span class="material-symbols-outlined">info</span>
+                    </button>
+                    @if (role() === 'ROLE_ADMIN' || role() === 'ROLE_OWNER') {
                       <button class="icon-btn-ghost text-primary" (click)="onUpdateProduct(product)" title="Editar">
                         <span class="material-symbols-outlined">edit</span>
                       </button>
                       <button class="icon-btn-ghost text-danger" (click)="onRemoveProduct(product)" title="Eliminar">
                         <span class="material-symbols-outlined">delete</span>
                       </button>
-                    </div>
-                  }
+                    }
+                  </div>
                 </td>
               </tr>
             }
@@ -127,6 +130,48 @@
       <div class="modal-footer">
         <button class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
         <button class="btn-danger" (click)="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Visor de Imágenes -->
+@if (imageToView()) {
+  <div class="modal-overlay fade-in" (click)="imageToView.set(null)" style="z-index: 100;">
+    <div class="modal-card" style="max-width: 90vw; padding: 12px; position: relative;" (click)="$event.stopPropagation()">
+      <button class="icon-btn-ghost text-danger" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.8); border-radius: 50%;" (click)="imageToView.set(null)">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <img [src]="imageToView()" alt="Producto" style="width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; display: block;" />
+    </div>
+  </div>
+}
+
+<!-- Modal de Detalles del Producto -->
+@if (productDetails()) {
+  <div class="modal-overlay fade-in" (click)="productDetails.set(null)">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon-info" style="color: var(--primary); text-align: center; font-size: 48px; margin-bottom: 16px;">
+        <span class="material-symbols-outlined" style="font-size: 48px;">info</span>
+      </div>
+      <h3 class="modal-title">Detalles del Artículo</h3>
+      <div class="modal-body" style="text-align: left; margin-bottom: 24px;">
+        <p><strong>ID:</strong> NX-{{ productDetails()!.id | number:'3.0' }}</p>
+        <p><strong>Nombre:</strong> {{ productDetails()!.name }}</p>
+        <p><strong>Categoría:</strong> {{ productDetails()!.category }}</p>
+        <p><strong>Descripción:</strong> {{ productDetails()!.description }}</p>
+        <p><strong>Precio:</strong> ${{ productDetails()!.price }}</p>
+        <p><strong>Stock:</strong> {{ productDetails()!.stock }} unidades</p>
+        <hr style="border: 0; border-top: 1px solid var(--outline-variant); margin: 16px 0;" />
+        <p><strong>Subido por:</strong> 
+          <span class="chip chip-primary" style="background-color: rgba(0, 176, 116, 0.1); color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px; vertical-align: bottom;">person</span>
+            {{ productDetails()!.user?.username || 'Sistema' }}
+          </span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="productDetails.set(null)" style="width: 100%;">Cerrar</button>
       </div>
     </div>
   </div>

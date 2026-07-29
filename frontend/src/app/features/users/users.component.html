@@ -20,8 +20,8 @@
       <tbody>
         @for (user of users(); track user.id) {
           <tr class="table-row">
-            <td class="font-code text-primary">USR-{{ user.id }}</td>
-            <td>
+            <td data-label="ID" class="font-code text-primary">USR-{{ user.id }}</td>
+            <td data-label="NOMBRE">
               <div class="product-name-cell">
                 <div class="icon-box-small">
                   <span class="material-symbols-outlined">person</span>
@@ -29,9 +29,9 @@
                 <span>{{ user.username }}</span>
               </div>
             </td>
-            <td>{{ user.lastname }}</td>
-            <td>{{ user.email }}</td>
-            <td>
+            <td data-label="APELLIDOS">{{ user.lastname }}</td>
+            <td data-label="CORREO">{{ user.email }}</td>
+            <td data-label="ROL">
               <select 
                 class="form-select role-select" 
                 [ngModel]="user.role" 

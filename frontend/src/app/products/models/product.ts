@@ -6,4 +6,5 @@ export class Product {
   stock!: number;
   category!: string;
   imageBase64?: string;
+  user?: { id: number, username: string, email: string };
 }

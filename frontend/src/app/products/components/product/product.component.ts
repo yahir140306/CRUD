@@ -23,6 +23,8 @@ export class ProductComponent implements OnInit {
   username = signal<string | null>(null);
   productSelected = signal<Product>(new Product());
   productToDelete = signal<Product | null>(null);
+  productDetails = signal<Product | null>(null); // Añadido para ver detalles
+  imageToView = signal<string | null>(null); // Añadido para ver imágenes en grande
 
   // Señales para la paginación
   currentPage = signal<number>(1);
