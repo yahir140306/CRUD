@@ -1,150 +1,467 @@
-# Documentación Detallada del Sistema CRUD (Gestión de Inventario Farmacéutico)
+# Documentación Técnica Exhaustiva - Sistema de Inventario Farmacéutico
 
-Esta documentación exhaustiva explica archivo por archivo y bloque por bloque cómo funciona la aplicación, cubriendo tanto el Backend (Spring Boot) como el Frontend (Angular 17).
+No hay un límite estricto de líneas para un archivo Markdown. Esta documentación ha sido diseñada para ser lo más detallada y extensa posible, explicando el propósito, la lógica y el código de cada archivo crucial que conforma este sistema CRUD.
 
 ---
 
-## 1. BACKEND (Spring Boot 3 + Java 17)
-El backend está estructurado en capas (Controladores, Servicios, Repositorios y Entidades) siguiendo el patrón MVC y conectándose a una base de datos PostgreSQL.
+## ÍNDICE
+1. [Arquitectura del Sistema](#1-arquitectura-del-sistema)
+2. [Backend: Capa de Base de Datos (Entidades)](#2-backend-capa-de-base-de-datos-entidades)
+3. [Backend: Capa de Acceso a Datos (Repositorios)](#3-backend-capa-de-acceso-a-datos-repositorios)
+4. [Backend: Capa de Seguridad (Spring Security y JWT)](#4-backend-capa-de-seguridad-spring-security-y-jwt)
+5. [Backend: Capa de Negocio (Servicios)](#5-backend-capa-de-negocio-servicios)
+6. [Backend: Capa de Presentación (Controladores)](#6-backend-capa-de-presentación-controladores)
+7. [Frontend: Configuración y Seguridad (Angular 17)](#7-frontend-configuración-y-seguridad-angular-17)
+8. [Frontend: Componente Raíz y Estado Global](#8-frontend-componente-raíz-y-estado-global)
+9. [Frontend: Módulo de Productos (El Core del CRUD)](#9-frontend-módulo-de-productos-el-core-del-crud)
+10. [Frontend: Módulo de Usuarios y Roles](#10-frontend-módulo-de-usuarios-y-roles)
 
-### 1.1 Entidades (Modelos de Base de Datos)
-Definen la estructura de las tablas en PostgreSQL.
+---
 
-**`entities/User.java`**
-Representa a los usuarios del sistema. Implementa `UserDetails` de Spring Security para manejar la autenticación.
-- **Campos principales:** `id`, `username`, `email`, `password`, `role`.
-- **Bloque clave:** Los roles (`ROLE_USER`, `ROLE_ADMIN`, `ROLE_OWNER`) definen qué puede hacer cada usuario.
+## 1. Arquitectura del Sistema
 
-**`entities/Product.java`**
-Representa los artículos médicos o productos.
-- **Campos principales:** `id`, `name`, `description`, `price`, `stock`, `category`, `imageBase64`.
-- **Relación:** Contiene `@ManyToOne User user;` indicando que muchos productos son registrados por un usuario.
-```java
-@ManyToOne
-@JoinColumn(name = "user_id", nullable = false)
-private User user; // Vincula el producto con su creador
-```
+El sistema utiliza una arquitectura de microservicios lógicos donde el **Frontend** y el **Backend** están completamente desacoplados. Se comunican exclusivamente mediante peticiones HTTP(S) transmitiendo datos en formato JSON.
 
-### 1.2 Repositorios (Acceso a Datos)
-Interfaces que extienden de `JpaRepository` para proporcionar métodos mágicos que hacen consultas SQL de forma automática.
-
-**`repository/UserRepository.java`**
-```java
-Optional<User> findByUsername(String username); // Busca un usuario para el Login
-```
-
-**`repository/ProductRepository.java`**
-```java
-// Hereda métodos como findAll(), findById(), save(), delete()
-public interface ProductRepository extends JpaRepository<Product, Long> { }
-```
-
-### 1.3 Servicios (Lógica de Negocio)
-Aquí residen las reglas y restricciones del sistema.
-
-**`services/UserDetailsServiceImpl.java`**
-Le dice a Spring Security cómo buscar a un usuario en la BD durante el login. Si no existe, lanza un error.
-
-**`services/ProductServiceImpl.java`**
-Implementa el CRUD. 
-- **Lectura (`findAll`):** Retorna todos los productos para que el inventario sea global.
-- **Creación (`createForCurrentUser`):** Asigna el usuario logueado actualmente al producto antes de guardarlo.
-- **Actualización (`updateForCurrentUser`):** Busca el producto, actualiza sus campos, pero mantiene intacto al `User` original que lo creó para no perder el registro.
-```java
-Product existing = productRepository.findById(id)...
-product.setId(id);
-product.setUser(existing.getUser()); // Conserva al creador original
-return productRepository.save(product);
-```
-
-### 1.4 Controladores (Endpoints de la API REST)
-Puntos de entrada que el Frontend llama a través de HTTP.
-
-**`controllers/ProductController.java`**
-Expone las rutas `/api/products`.
-- `@GetMapping`: Llama al servicio para obtener la lista de productos o un producto por ID.
-- `@PostMapping`: Llama al servicio para crear un producto leyendo el `@RequestBody` (JSON).
-- `@PutMapping("/{id}")`: Actualiza el producto asociado a ese ID.
-- `@DeleteMapping("/{id}")`: Elimina un producto.
-
-### 1.5 Seguridad y Autenticación (JWT)
-
-**`security/JwtTokenProvider.java`**
-Se encarga de crear (firmar) un Token JWT al iniciar sesión y de validarlo en cada petición subsecuente.
-
-**`security/JwtAuthenticationFilter.java`**
-Es un "guardia de seguridad" (Filtro) que se ejecuta antes de cualquier petición.
-- **Flujo:** Extrae el token de la cabecera `Authorization: Bearer <token>`. Si es válido, extrae el `username`, busca los roles y establece el usuario como "Autenticado" en el contexto de Spring.
-
-**`SpringSecurityConfig.java`**
-El corazón de la seguridad. Define quién puede entrar a qué lugar.
-```java
-.requestMatchers(HttpMethod.GET, "/api/products/**").authenticated() // Todos pueden leer
-.requestMatchers("/api/users/**").hasRole("OWNER") // Solo el dueño gestiona roles
-.requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("ADMIN", "OWNER") // Solo Admin y Dueño crean productos
+```mermaid
+graph TD
+    Browser[Navegador del Cliente] -->|HTTP GET/POST/PUT/DELETE| Angular[Frontend Angular 17]
+    Angular -->|Peticiones XHR + JWT| API[Backend Spring Boot 3]
+    API -->|Validación JWT| Security[Filtro Spring Security]
+    Security --> Controllers[Controladores REST]
+    Controllers --> Services[Servicios @Transactional]
+    Services --> Repositories[Interfaces JPA]
+    Repositories -->|Hibernate / JDBC| Postgres[(PostgreSQL)]
 ```
 
 ---
 
-## 2. FRONTEND (Angular 17)
-El Frontend utiliza componentes "Standalone" (sin módulos), la API Reactiva "Signals" y CSS puro para un diseño adaptable a móviles.
+## 2. Backend: Capa de Base de Datos (Entidades)
 
-### 2.1 Configuración Base
+Las entidades son clases de Java mapeadas directamente a tablas en la base de datos PostgreSQL utilizando JPA (Java Persistence API) y Hibernate.
 
-**`app.routes.ts`**
-Define qué componente cargar según la URL. Utiliza `canActivate: [authGuard]` para impedir que usuarios sin sesión activa entren al dashboard o a ver los productos.
+### `Product.java`
+Este archivo define la estructura de la tabla `Product`. Cada instancia de esta clase representa un registro (fila) en la base de datos.
+```java
+@Entity
+@Table(name = "Product")
+public class Product {
+    @Id // Define la llave primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Autoincremental
+    private Long id;
+    
+    private String name;
+    private String description;
+    private Long price;
+    private Long stock;
+    private String category;
+    
+    @Column(columnDefinition = "TEXT") // TEXT permite almacenar cadenas muy largas (Base64)
+    private String imageBase64;
 
-**`core/interceptors/auth.interceptor.ts`**
-Intercepta *todas* las peticiones HTTP que salen de Angular hacia Spring Boot y les inyecta automáticamente el Token JWT en la cabecera. Si no existiera, Spring Boot las rechazaría.
-```typescript
-const cloned = req.clone({
-  headers: req.headers.set('Authorization', `Bearer ${token}`)
-});
-return next(cloned);
+    @ManyToOne // Relación N:1 -> Muchos productos pertenecen a 1 usuario
+    @JoinColumn(name = "user_id", nullable = false) // Crea la columna foránea
+    private User user;
+    
+    // Getters y Setters...
+}
+```
+**Explicación:** Se almacena la imagen del producto directamente como un string en formato Base64. Esto simplifica la arquitectura al no depender de servidores de almacenamiento como AWS S3, a costa del tamaño de la base de datos. La relación `@ManyToOne` permite saber *quién* registró el artículo originalmente.
+
+### `User.java`
+Representa a los empleados o dueños del sistema.
+```java
+@Entity
+@Table(name = "users")
+public class User implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true) // El username no se puede repetir
+    private String username;
+    private String password; // Se almacena hasheada (BCrypt)
+    private String role; // "ROLE_USER", "ROLE_ADMIN", "ROLE_OWNER"
+    
+    // Métodos obligatorios de UserDetails (Spring Security)
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Convierte el String del rol en una autoridad que Spring pueda entender
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+    // ...
+}
 ```
 
-### 2.2 Servicios Frontend
+---
 
-**`core/services/auth.service.ts`**
-Maneja el inicio de sesión. Hace el `POST /api/auth/login`, recibe el token, lo guarda en `localStorage` y actualiza una señal `currentUserSignal` para que toda la app sepa quién está conectado.
+## 3. Backend: Capa de Acceso a Datos (Repositorios)
 
-**`products/services/product.service.ts`**
-Tiene los métodos para hablar con `ProductController.java` mediante `HttpClient`.
-Además, tiene una señal reactiva `searchTerm = signal<string>('')` que guarda el texto que el usuario escribe en el buscador superior.
+Los repositorios utilizan `Spring Data JPA` para generar consultas SQL automáticamente, sin necesidad de escribir código.
 
-### 2.3 Componente Principal y Navegación
-
-**`app.component.ts` & `app.component.html`**
-- Es la "Cáscara" de la aplicación. Contiene el Header (barra superior) y el Sidebar (menú lateral).
-- **Buscador:** El `<input>` en el header llama a `onSearch(term)`, que actualiza globalmente la señal `searchTerm` en el `ProductService`.
-
-### 2.4 Gestión de Productos (CRUD)
-
-**`products/components/product/product.component.ts` (Lógica)**
-- Utiliza **Signals**: `products` guarda la lista obtenida de la BD.
-- Utiliza **Computed**: `filteredProducts` se recalcula *automáticamente* y de inmediato en cuanto `products` o `searchTerm` cambian. Esto permite buscar en tiempo real sin recargar.
-```typescript
-filteredProducts = computed(() => {
-  const term = this.service.searchTerm().toLowerCase();
-  return this.products().filter(p => p.name.includes(term) || p.description.includes(term));
-});
+### `ProductRepository.java`
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    // Al extender JpaRepository, Spring genera automáticamente:
+    // - findAll() (con soporte para paginación)
+    // - findById()
+    // - save()
+    // - delete()
+}
 ```
 
-**`products/components/product/product.component.html` (Vista)**
-Muestra la lista de productos. 
-- **Tabla HTML:** Se itera usando `@for (product of filteredProducts())`.
-- **Modales (Popups):** Usa `@if (imageToView())` y `@if (productDetails())` para mostrar la imagen ampliada o los detalles del producto cuando el usuario hace clic.
+### `UserRepository.java`
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    // Spring parsea el nombre de este método y genera la consulta:
+    // SELECT * FROM users WHERE username = ?
+    Optional<User> findByUsername(String username);
+}
+```
 
-**`products/components/product/product.component.css` (Diseño Responsive)**
-El bloque de medios `@media (max-width: 768px)` convierte la tabla clásica de HTML en "Tarjetas" para celulares, cambiando el `display` de los `<tr>` a `block`, y usando pseudo-elementos (`::before`) para inyectar títulos.
+---
 
-**`products/components/form/product-form.component.ts`**
-El formulario reactivo. Usa `FormBuilder` para aplicar validaciones (ej. el precio debe ser mayor a 0).
-Cuando el usuario da clic en "Crear" o "Actualizar", emite un evento `newProductEvent` que atrapa el componente padre (`ProductComponent`) para mandarlo al servidor.
+## 4. Backend: Capa de Seguridad (Spring Security y JWT)
 
-### 2.5 Gestión de Usuarios
+La seguridad se maneja mediante *JSON Web Tokens* (JWT), asegurando que la API sea "Stateless" (sin sesiones en memoria).
 
-**`features/users/users.component.ts` & `.html`**
-- Una pantalla exclusiva para el rol `ROLE_OWNER`.
-- Consiste en una tabla (que también se convierte en tarjetas en móvil) donde se listan los empleados.
-- El dueño puede usar un elemento `<select>` para cambiarle el rol a otro usuario (hacerlo ADMIN o degradarlo a USER). Al cambiar el selector, se envía la petición al backend para actualizar los permisos en la base de datos.
+### `SpringSecurityConfig.java`
+Es la aduana principal del sistema. Define qué rutas están abiertas y cuáles están restringidas por roles.
+```java
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .cors(Customizer.withDefaults()) // Habilita peticiones cruzadas (CORS)
+        .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF (Innecesario en APIs stateless)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            // Rutas de Login y Registro son públicas
+            .requestMatchers("/api/auth/**").permitAll()
+            
+            // Cualquier usuario logueado puede VER los productos
+            .requestMatchers(HttpMethod.GET, "/api/products/**").authenticated()
+            
+            // Solo el rol OWNER puede entrar a la gestión de usuarios
+            .requestMatchers("/api/users/**").hasRole("OWNER")
+            
+            // Solo ADMIN y OWNER pueden modificar productos
+            .requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("ADMIN", "OWNER")
+            .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("ADMIN", "OWNER")
+            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("ADMIN", "OWNER")
+            
+            .anyRequest().permitAll())
+        // Añade nuestro filtro JWT antes del filtro convencional de Spring
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+}
+```
+
+### `JwtAuthenticationFilter.java`
+Este código intercepta CADA petición al backend.
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    // 1. Extrae el header "Authorization"
+    String authHeader = request.getHeader("Authorization");
+    
+    // 2. Si empieza con "Bearer ", extrae el token
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String token = authHeader.substring(7);
+        // 3. Valida la firma criptográfica del token
+        if (jwtTokenProvider.validateToken(token)) {
+            // 4. Extrae el usuario y avisa a Spring Security que está autenticado
+            String username = jwtTokenProvider.getUsernameFromToken(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+    }
+    // 5. Permite que la petición continúe
+    filterChain.doFilter(request, response);
+}
+```
+
+---
+
+## 5. Backend: Capa de Negocio (Servicios)
+
+Aquí reside la inteligencia y reglas de negocio del sistema, marcadas con `@Transactional` para asegurar la integridad de la base de datos si ocurre un error en medio de una operación.
+
+### `ProductServiceImpl.java`
+Contiene la lógica de cómo se manipulan los productos.
+```java
+@Override
+@Transactional(readOnly = true) // Optimiza la consulta en BD indicando que es solo lectura
+public Page<Product> findAllForCurrentUser(Pageable pageable) {
+    // Se extrae todo el inventario de manera global
+    return productRepository.findAll(pageable);
+}
+
+@Override
+@Transactional // Bloquea la fila en la BD para escritura segura
+public Product updateForCurrentUser(Long id, Product product) {
+    // 1. Verifica que el producto exista
+    Product existing = productRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
+
+    // 2. Prepara la actualización
+    product.setId(id);
+    
+    // 3. REGLA CLAVE: Un admin puede editar un producto de otro usuario, 
+    // pero el sistema NO DEBE borrar quién fue el creador original.
+    product.setUser(existing.getUser()); 
+    
+    // 4. Guarda en BD
+    return productRepository.save(product);
+}
+```
+
+---
+
+## 6. Backend: Capa de Presentación (Controladores)
+
+Los controladores traducen las peticiones HTTP (URL + Body JSON) hacia llamadas de la capa de Servicios.
+
+### `ProductController.java`
+```java
+@RestController // Indica que devuelve JSON, no plantillas HTML
+@RequestMapping("/api/products") // Prefijo de la URL
+public class ProductController {
+    
+    // ... inyección de ProductService ...
+
+    @GetMapping
+    public ResponseEntity<Page<Product>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        // Maneja la paginación de la API (ej. /api/products?page=0&size=10)
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(productService.findAllForCurrentUser(pageable));
+    }
+
+    @PostMapping
+    public ResponseEntity<Product> create(@RequestBody Product product) {
+        // Convierte el JSON entrante en un objeto Product de Java
+        Product savedProduct = productService.createForCurrentUser(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    }
+}
+```
+
+---
+
+## 7. Frontend: Configuración y Seguridad (Angular 17)
+
+En Angular 17 se utilizan **Standalone Components** (no existe `app.module.ts`), lo que hace el código más limpio e importable directamente donde se necesita.
+
+### `auth.interceptor.ts`
+Un interceptor intercepta las peticiones HTTP salientes desde el cliente hacia el servidor.
+```typescript
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // 1. Intenta sacar el token de la bóveda (localStorage)
+  const token = localStorage.getItem('token');
+  
+  if (token) {
+    // 2. Si existe, CLONA la petición original agregando el encabezado de autorización
+    const cloned = req.clone({
+      headers: req.headers.set('Authorization', `Bearer ${token}`)
+    });
+    // 3. Envía la petición clonada
+    return next(cloned);
+  }
+  // Si no hay token, envía la petición desnuda
+  return next(req);
+};
+```
+
+### `auth.guard.ts`
+Protege las rutas visuales. Si el usuario escribe `/products` en el navegador pero no está logueado, es redirigido.
+```typescript
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  
+  if (authService.isAuthenticated()) {
+    return true; // Acceso concedido
+  }
+  // Acceso denegado, forzar redirección
+  return router.parseUrl('/login');
+};
+```
+
+---
+
+## 8. Frontend: Componente Raíz y Estado Global
+
+### `app.component.ts`
+El corazón visual de la app. Contiene la Sidebar, el Header y el sistema de búsqueda.
+Usa fuertemente **Signals** (ej. `signal(true)`) para manejar estados de manera ultra-rápida sin depender de ciclos de vida pesados.
+
+```typescript
+export class AppComponent implements OnInit {
+  isDark = signal(true); // Controla el tema oscuro
+  isSidebarOpen = signal(true); // Controla si el menú lateral está abierto
+  public productService = inject(ProductService);
+
+  // Cada vez que se teclea en el buscador de la cabecera:
+  onSearch(term: string) {
+    // Actualiza la señal global de búsqueda
+    this.productService.searchTerm.set(term);
+  }
+
+  // Al dar clic en la 'X' de la barra de búsqueda
+  clearSearch(input: HTMLInputElement) {
+    input.value = '';
+    this.productService.searchTerm.set(''); // Vacia el filtro
+  }
+}
+```
+
+---
+
+## 9. Frontend: Módulo de Productos (El Core del CRUD)
+
+### `product.component.ts` (Lógica e Inteligencia Reactiva)
+Aquí se demuestra la potencia de `computed()` en Angular 17.
+
+```typescript
+export class ProductComponent implements OnInit {
+  // Estado local (Signals)
+  products = signal<Product[]>([]);
+  imageToView = signal<string | null>(null);
+  productDetails = signal<Product | null>(null);
+
+  // COMPUTED: Se recalcula automáticamente si 'searchTerm' o 'products' cambian.
+  // Es decir, al teclear, esto filtra la tabla sin necesidad de apretar "Enter".
+  filteredProducts = computed(() => {
+    const term = this.service.searchTerm().toLowerCase();
+    return this.products().filter(
+      (p) => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term)
+    );
+  });
+  
+  // Llama al backend (POST/PUT)
+  addProduct(product: Product): void {
+    if (product.id > 0) {
+      this.service.update(product).subscribe({...});
+    } else {
+      this.service.create(product).subscribe({...});
+    }
+  }
+}
+```
+
+### `product.component.html` (Vista y Modales)
+La vista itera reactivamente sobre el array `filteredProducts()`.
+Se destacan los modales para experiencia de usuario:
+
+```html
+<!-- Celdas de la tabla HTML -->
+<td data-label="NOMBRE">
+  <!-- Si hay imagen base64, se muestra como miniatura clickeable -->
+  <div class="icon-box-small" (click)="product.imageBase64 ? imageToView.set(product.imageBase64) : null">
+     <img [src]="product.imageBase64">
+  </div>
+</td>
+
+<!-- Modal que se activa automáticamente cuando imageToView tiene datos -->
+@if (imageToView()) {
+  <div class="modal-overlay" (click)="imageToView.set(null)">
+      <!-- Renderiza la foto en grande -->
+      <img [src]="imageToView()" style="max-height: 80vh;" />
+  </div>
+}
+```
+
+### `product.component.css` (Magia Responsiva de Tarjetas)
+En móviles, una tabla HTML tradicional crea un molesto *scroll* horizontal. Para evitarlo, usamos CSS moderno para desmontar la tabla.
+
+```css
+@media (max-width: 768px) {
+  /* 1. Ocultar los encabezados <th> originales */
+  .data-table thead { display: none; }
+  
+  /* 2. Forzar que las filas <tr> se comporten como cajas (Tarjetas) */
+  .data-table tr {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  
+  /* 3. Forzar que las celdas <td> sean renglones flexibles */
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* 4. Inyectar un "pseudo-elemento" antes del contenido de la celda.
+        Esto lee el atributo HTML data-label="NOMBRE" y lo pone como título */
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+  }
+}
+```
+*Esto provoca que en escritorio se vea como tabla tabular, pero en celular se apile como un formulario.*
+
+### `product-form.component.ts` (Formularios Reactivos)
+Utiliza `ReactiveFormsModule` para evitar validar inputs manualmente en HTML.
+```typescript
+productForm = this.fb.nonNullable.group({
+    id: [0],
+    name: ['', [Validators.required, Validators.minLength(5)]], // Exige nombre de 5 letras
+    description: ['', [Validators.required]],
+    price: [0, [Validators.required, Validators.min(0)]], // No permite precios negativos
+});
+
+onSubmit(): void {
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched(); // Pinta los bordes rojos si hay errores
+      return;
+    }
+    // Emite los datos hacia el componente padre (product.component.ts)
+    this.newProductEvent.emit(this.productForm.getRawValue());
+}
+```
+
+---
+
+## 10. Frontend: Módulo de Usuarios y Roles
+
+La gestión de accesos (Solo para el Rol Dueño).
+
+### `users.component.html`
+Se despliega un selector `<select>` incrustado en cada fila de usuario.
+```html
+<td data-label="ROL">
+  <!-- ngModel ata el valor del select al objeto usuario.
+       ngModelChange se dispara al elegir otra opción -->
+  <select 
+    [ngModel]="user.role" 
+    (ngModelChange)="onRoleChange(user, $event)"
+    [disabled]="user.role === 'ROLE_OWNER'">
+    
+    <option value="ROLE_USER">Empleado (Sin Permisos)</option>
+    <option value="ROLE_ADMIN">Administrador</option>
+  </select>
+</td>
+```
+
+### `users.component.ts`
+El controlador envía el nuevo rol al servidor para actualizar la base de datos inmediatamente.
+```typescript
+onRoleChange(user: any, newRole: string) {
+  // Petición PUT hacia el servidor
+  this.userService.updateRole(user.id, newRole).subscribe({
+    next: () => {
+      // Actualiza la UI de manera silenciosa
+      user.role = newRole;
+      this.toastService.show('Rol actualizado', 'success');
+    }
+  });
+}
+```
+
+---
+*Fin de la Documentación Técnica.*
