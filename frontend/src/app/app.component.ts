@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   isSidebarOpen = signal(true);
   authService = inject(AuthService);
   private router = inject(Router);
-  private productService = inject(ProductService);
+  public productService = inject(ProductService);
   toastService = inject(ToastService);
 
   ngOnInit() {
@@ -68,6 +68,12 @@ export class AppComponent implements OnInit {
   // Actualiza el término de búsqueda global en el servicio de productos
   onSearch(term: string) {
     this.productService.searchTerm.set(term);
+  }
+
+  // Limpia el buscador y muestra todos los productos
+  clearSearch(input: HTMLInputElement) {
+    input.value = '';
+    this.productService.searchTerm.set('');
   }
 
   // Cierra sesión y redirige al login

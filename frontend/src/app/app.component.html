@@ -48,9 +48,14 @@
           </button>
 
           @if (showSearch) {
-            <div class="search-box">
+            <div class="search-box" style="position: relative;">
               <span class="material-symbols-outlined search-icon">search</span>
-              <input type="text" placeholder="Buscar medicamentos..." #searchInput (input)="onSearch(searchInput.value)" />
+              <input type="text" placeholder="Buscar medicamentos..." [value]="productService.searchTerm()" #searchInput (input)="onSearch(searchInput.value)" />
+              @if (productService.searchTerm()) {
+                <button (click)="clearSearch(searchInput)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--outline);" title="Limpiar búsqueda">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+                </button>
+              }
             </div>
           }
         </div>
