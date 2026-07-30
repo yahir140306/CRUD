@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { User } from '../../core/models/user.model';
@@ -19,6 +19,18 @@ export class UsersComponent implements OnInit {
   
   users = signal<User[]>([]);
   currentRole = signal<string | null>(null);
+  searchTerm = signal<string>('');
+
+  filteredUsers = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.users();
+    return this.users().filter(
+      (u) => 
+        u.username.toLowerCase().includes(term) ||
+        u.lastname.toLowerCase().includes(term) ||
+        u.email.toLowerCase().includes(term)
+    );
+  });
 
   ngOnInit(): void {
     this.currentRole.set(this.authService.getRole());

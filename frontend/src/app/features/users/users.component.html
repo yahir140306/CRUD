@@ -1,7 +1,27 @@
-<div class="header">
+<div class="header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
   <div class="title">
     <h2>Gestión de Usuarios</h2>
     <p>Asigna o revoca el acceso de administrador a los empleados.</p>
+  </div>
+  <div class="search-box" style="flex: 1; max-width: 300px; position: relative;">
+    <span class="material-symbols-outlined" style="position: absolute; left: 12px; top: 10px; color: var(--outline);">search</span>
+    <input 
+      type="text" 
+      [ngModel]="searchTerm()" 
+      (ngModelChange)="searchTerm.set($event)" 
+      placeholder="Buscar empleado..." 
+      style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 8px; border: 1px solid var(--outline-variant); background: var(--surface); color: var(--on-surface); font-family: inherit; font-size: 14px;"
+    >
+    @if (searchTerm()) {
+      <button 
+        type="button" 
+        (click)="searchTerm.set('')" 
+        style="position: absolute; right: 12px; top: 10px; background: none; border: none; padding: 0; color: var(--outline); cursor: pointer; display: flex;"
+        title="Limpiar búsqueda"
+      >
+        <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+      </button>
+    }
   </div>
 </div>
 
@@ -18,7 +38,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of users(); track user.id) {
+        @for (user of filteredUsers(); track user.id) {
           <tr class="table-row">
             <td data-label="ID" class="font-code text-primary">USR-{{ user.id }}</td>
             <td data-label="NOMBRE">
