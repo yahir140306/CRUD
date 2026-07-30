@@ -7,7 +7,7 @@ Bienvenido al repositorio del Sistema de Inventario Farmacéutico. Esta aplicaci
 ## 🚀 Tecnologías Utilizadas
 
 ### Frontend
-* **Angular 17** (Standalone Components, Signals, Control Flow)
+* **Angular 21+** (Standalone Components, Signals, Control Flow, **Signal Forms**)
 * **HTML5 y CSS3 Puro** (Diseño totalmente responsivo, interfaz tipo "Tarjetas" para móviles)
 * **TypeScript**
 

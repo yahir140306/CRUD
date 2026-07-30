@@ -19,7 +19,7 @@
       </div>
     }
 
-    <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <form class="auth-form" (submit)="onSubmit(); $event.preventDefault()">
       
       <!-- Username & Lastname Grid -->
       <div class="grid">
@@ -30,16 +30,16 @@
             <input
               id="username"
               type="text"
-              formControlName="username"
+              [formField]="registerForm.username"
               placeholder="Juan"
               class="pad-left"
-              [class.input-error]="registerForm.controls.username.invalid && registerForm.controls.username.touched"
+              [class.input-error]="registerForm.username().invalid() && registerForm.username().touched()"
             />
           </div>
-          @if (registerForm.controls.username.invalid && registerForm.controls.username.touched) {
+          @if (registerForm.username().touched() && registerForm.username().errors().length) {
             <div class="error-text err-flex">
               <span class="material-symbols-outlined err-ico">error</span>
-              <span>El nombre es obligatorio</span>
+              <span>{{ registerForm.username().errors()[0].message }}</span>
             </div>
           }
         </div>
@@ -51,16 +51,16 @@
             <input
               id="lastname"
               type="text"
-              formControlName="lastname"
+              [formField]="registerForm.lastname"
               placeholder="Pérez"
               class="pad-left"
-              [class.input-error]="registerForm.controls.lastname.invalid && registerForm.controls.lastname.touched"
+              [class.input-error]="registerForm.lastname().invalid() && registerForm.lastname().touched()"
             />
           </div>
-          @if (registerForm.controls.lastname.invalid && registerForm.controls.lastname.touched) {
+          @if (registerForm.lastname().touched() && registerForm.lastname().errors().length) {
             <div class="error-text err-flex">
               <span class="material-symbols-outlined err-ico">error</span>
-              <span>El apellido es obligatorio</span>
+              <span>{{ registerForm.lastname().errors()[0].message }}</span>
             </div>
           }
         </div>
@@ -74,17 +74,17 @@
           <input
             id="email"
             type="email"
-            formControlName="email"
+            [formField]="registerForm.email"
             placeholder="nombre@farmacia.com"
             autocomplete="email"
             class="pad-left"
-            [class.input-error]="registerForm.controls.email.invalid && registerForm.controls.email.touched"
+            [class.input-error]="registerForm.email().invalid() && registerForm.email().touched()"
           />
         </div>
-        @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) {
+        @if (registerForm.email().touched() && registerForm.email().errors().length) {
           <div class="error-text err-flex">
             <span class="material-symbols-outlined err-ico">error</span>
-            <span>Un correo válido es obligatorio</span>
+            <span>{{ registerForm.email().errors()[0].message }}</span>
           </div>
         }
       </div>
@@ -97,11 +97,11 @@
           <input
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
-            formControlName="password"
+            [formField]="registerForm.password"
             placeholder="••••••••"
             autocomplete="new-password"
             class="pad-left"
-            [class.input-error]="registerForm.controls.password.invalid && registerForm.controls.password.touched"
+            [class.input-error]="registerForm.password().invalid() && registerForm.password().touched()"
           />
           <button type="button" class="icon-btn" (click)="togglePassword()">
             <span class="material-symbols-outlined">
@@ -109,10 +109,10 @@
             </span>
           </button>
         </div>
-        @if (registerForm.controls.password.invalid && registerForm.controls.password.touched) {
+        @if (registerForm.password().touched() && registerForm.password().errors().length) {
           <div class="error-text err-flex">
             <span class="material-symbols-outlined err-ico">error</span>
-            <span>La contraseña debe tener al menos 6 caracteres</span>
+            <span>{{ registerForm.password().errors()[0].message }}</span>
           </div>
         }
       </div>
@@ -125,22 +125,22 @@
           <input
             id="confirmPassword"
             [type]="showPassword() ? 'text' : 'password'"
-            formControlName="confirmPassword"
+            [formField]="registerForm.confirmPassword"
             placeholder="••••••••"
             autocomplete="new-password"
             class="pad-left"
-            [class.input-error]="registerForm.controls.confirmPassword.invalid && registerForm.controls.confirmPassword.touched"
+            [class.input-error]="registerForm.confirmPassword().invalid() && registerForm.confirmPassword().touched()"
           />
         </div>
         <div class="error-text err-flex">
-          @if (registerForm.errors?.['passwordsMismatch'] && registerForm.controls.confirmPassword.touched) {
+          @if (registerForm.confirmPassword().touched() && registerForm.confirmPassword().errors().length) {
             <span class="material-symbols-outlined err-ico">error</span>
-            <span>Las contraseñas no coinciden</span>
+            <span>{{ registerForm.confirmPassword().errors()[0].message }}</span>
           }
         </div>
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="loading() || registerForm.invalid">
+      <button type="submit" class="btn-primary" [disabled]="loading() || registerForm().invalid() || registerForm().pending()">
         @if (loading()) {
           <span class="material-symbols-outlined spinner">sync</span>
           <span>Creando cuenta...</span>

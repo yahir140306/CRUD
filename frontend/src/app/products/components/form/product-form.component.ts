@@ -1,18 +1,16 @@
-import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef, signal } from '@angular/core';
 import { Product } from '../../models/product';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { form, FormField, submit, required, min, minLength } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-form',
-  imports: [ReactiveFormsModule],
+  imports: [FormField],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.css',
 })
 export class ProductFormComponent implements OnChanges {
-  private fb = inject(FormBuilder);
   @ViewChild('imageInput') imageInput!: ElementRef;
 
-  // Producto por defecto cuando no se está editando
   @Input() product: Product = {
     id: 0,
     name: '',
@@ -23,43 +21,52 @@ export class ProductFormComponent implements OnChanges {
     imageBase64: '',
   };
 
-  // Evento que notifica al componente padre cuando se crea o edita un producto
   @Output() newProductEvent = new EventEmitter<Product>();
 
-  // Definición del formulario reactivo con validaciones
-  productForm = this.fb.nonNullable.group({
-    id: [0],
-    name: ['', [Validators.required, Validators.minLength(5)]],
-    description: ['', [Validators.required]],
-    price: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
-    category: ['', [Validators.required]],
-    imageBase64: [''],
+  protected readonly productModel = signal({
+    id: 0,
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0,
+    category: '',
+    imageBase64: '',
   });
 
-  // Cuando el padre cambia el producto (al editar), actualizamos el formulario
+  protected readonly productForm = form(this.productModel, (s) => {
+    required(s.name, { message: 'Nombre es requerido' });
+    minLength(s.name, 5, { message: 'Mínimo 5 caracteres' });
+    
+    required(s.description, { message: 'Descripción es requerida' });
+    
+    required(s.price, { message: 'Precio es requerido' });
+    min(s.price, 0, { message: 'El precio no puede ser negativo' });
+    
+    required(s.stock, { message: 'Stock es requerido' });
+    min(s.stock, 0, { message: 'El stock no puede ser negativo' });
+    
+    required(s.category, { message: 'Categoría es requerida' });
+  });
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && this.product) {
-      this.productForm.patchValue({
-        id: this.product.id,
-        name: this.product.name,
-        description: this.product.description,
-        price: this.product.price,
-        stock: this.product.stock,
-        category: this.product.category,
+      this.productModel.set({
+        id: this.product.id || 0,
+        name: this.product.name || '',
+        description: this.product.description || '',
+        price: this.product.price || 0,
+        stock: this.product.stock || 0,
+        category: this.product.category || '',
         imageBase64: this.product.imageBase64 || '',
       });
     }
   }
 
-  // Envía los datos del formulario al componente padre
   onSubmit(): void {
-    if (this.productForm.invalid) {
-      this.productForm.markAllAsTouched();
-      return;
-    }
-    this.newProductEvent.emit(this.productForm.getRawValue());
-    this.clean();
+    submit(this.productForm, async () => {
+      this.newProductEvent.emit(this.productModel());
+      this.clean();
+    });
   }
 
   onFileSelected(event: any): void {
@@ -67,15 +74,14 @@ export class ProductFormComponent implements OnChanges {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        this.productForm.patchValue({ imageBase64: reader.result as string });
+        this.productModel.update(m => ({ ...m, imageBase64: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
   }
 
-  // Limpia el formulario a sus valores por defecto
   clean(): void {
-    this.productForm.reset({
+    this.productModel.set({
       id: 0,
       name: '',
       description: '',
@@ -84,6 +90,8 @@ export class ProductFormComponent implements OnChanges {
       category: '',
       imageBase64: '',
     });
+    this.productForm().reset();
+    
     if (this.imageInput && this.imageInput.nativeElement) {
       this.imageInput.nativeElement.value = '';
     }

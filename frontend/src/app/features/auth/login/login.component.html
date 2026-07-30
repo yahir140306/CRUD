@@ -16,7 +16,7 @@
       </div>
     }
 
-    <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form class="auth-form" (submit)="onSubmit(); $event.preventDefault()">
       <!-- Email Field -->
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
@@ -24,19 +24,14 @@
           <input
             id="email"
             type="email"
-            formControlName="email"
+            [formField]="loginForm.email"
             placeholder="nombre@empresa.com"
             autocomplete="email"
           />
         </div>
         <div class="error-text">
-          @if (loginForm.controls.email.invalid && (loginForm.controls.email.dirty || loginForm.controls.email.touched)) {
-            @if (loginForm.controls.email.errors?.['required']) {
-              <span>Email es requerido</span>
-            }
-            @if (loginForm.controls.email.errors?.['email']) {
-              <span>Email inválido</span>
-            }
+          @if (loginForm.email().touched() && loginForm.email().errors().length) {
+            <span>{{ loginForm.email().errors()[0].message }}</span>
           }
         </div>
       </div>
@@ -50,7 +45,7 @@
           <input
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
-            formControlName="password"
+            [formField]="loginForm.password"
             placeholder="••••••••"
             autocomplete="current-password"
           />
@@ -61,19 +56,14 @@
           </button>
         </div>
         <div class="error-text">
-          @if (loginForm.controls.password.invalid && (loginForm.controls.password.dirty || loginForm.controls.password.touched)) {
-            @if (loginForm.controls.password.errors?.['required']) {
-              <span>Contraseña es requerida</span>
-            }
-            @if (loginForm.controls.password.errors?.['minlength']) {
-              <span>Mínimo 6 caracteres</span>
-            }
+          @if (loginForm.password().touched() && loginForm.password().errors().length) {
+            <span>{{ loginForm.password().errors()[0].message }}</span>
           }
         </div>
       </div>
 
       <!-- Actions -->
-      <button type="submit" class="btn-primary" [disabled]="loading() || loginForm.invalid">
+      <button type="submit" class="btn-primary" [disabled]="loading() || loginForm().invalid() || loginForm().pending()">
         @if (loading()) {
           <span class="material-symbols-outlined spinner">sync</span>
           <span>Autenticando...</span>
