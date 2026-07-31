@@ -39,6 +39,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product createForCurrentUser(Product product) {
+        product.setId(null); // Forzar que sea un producto nuevo (INSERT)
         User user = authService.getAuthenticatedUser();
         product.setUser(user);
         return productRepository.save(product);
