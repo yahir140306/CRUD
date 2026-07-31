@@ -56,14 +56,27 @@
 
   <!-- Sección de Detalles -->
   <div class="details-grid">
-    <!-- Producto Más Caro -->
+    <!-- Top Productos de Mayor Valor -->
     <div class="card detail-card">
-      <h3>Producto Más Caro</h3>
-      @if (mostExpensiveProduct()) {
-        <div class="expensive-product-info">
-          <h4>{{ mostExpensiveProduct()?.name }}</h4>
-          <p class="description">{{ mostExpensiveProduct()?.description }}</p>
-          <div class="price-tag">{{ mostExpensiveProduct()?.price | currency }}</div>
+      <h3>Top Productos de Mayor Valor</h3>
+      @if (topExpensiveProducts().length > 0) {
+        <div class="expensive-products-list">
+          @for (product of topExpensiveProducts(); track product.id) {
+            <div class="expensive-product-item">
+              <div class="expensive-product-image">
+                @if (product.imageBase64) {
+                  <img [src]="product.imageBase64" alt="Product Image">
+                } @else {
+                  <span class="material-symbols-outlined">inventory_2</span>
+                }
+              </div>
+              <div class="expensive-product-info">
+                <h4>{{ product.name }}</h4>
+                <p class="description">{{ product.category || 'Sin categoría' }}</p>
+              </div>
+              <div class="price-tag">{{ product.price | currency }}</div>
+            </div>
+          }
         </div>
       } @else {
         <p class="empty-state">No hay productos registrados.</p>

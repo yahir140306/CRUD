@@ -44,11 +44,11 @@ export class DashboardComponent implements OnInit {
     return Object.entries(categoryCount).map(([name, count]) => ({ name, count }));
   });
 
-  // Computed: Producto con el precio más alto
-  mostExpensiveProduct = computed(() => {
-    const allProducts = this.products();
-    if (allProducts.length === 0) return null;
-    return allProducts.reduce((max, product) => product.price > max.price ? product : max, allProducts[0]);
+  // Computed: Top 3 Productos con el precio más alto
+  topExpensiveProducts = computed(() => {
+    const allProducts = [...this.products()];
+    if (allProducts.length === 0) return [];
+    return allProducts.sort((a, b) => b.price - a.price).slice(0, 3);
   });
 
   ngOnInit() {
