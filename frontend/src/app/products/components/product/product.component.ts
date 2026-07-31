@@ -30,6 +30,7 @@ export class ProductComponent implements OnInit {
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(5);
   totalPages = signal<number>(1);
+  totalItems = signal<number>(0);
   role = signal<string | null>(null);
 
   // Filtro de frontend opcional
@@ -50,6 +51,7 @@ export class ProductComponent implements OnInit {
     this.service.findAll(this.currentPage() - 1, this.itemsPerPage()).subscribe((response: any) => {
       this.products.set(response.content);
       this.totalPages.set(response.totalPages);
+      this.totalItems.set(response.totalElements);
     });
   }
 

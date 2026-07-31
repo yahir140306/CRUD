@@ -91,7 +91,7 @@
       <!-- Controles de Paginación -->
       <div class="pagination-container">
         <div class="pagination-info">
-          Mostrando {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ (currentPage() * itemsPerPage()) > filteredProducts().length ? filteredProducts().length : (currentPage() * itemsPerPage()) }} de {{ filteredProducts().length }} artículos
+          Mostrando {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ (currentPage() * itemsPerPage()) > totalItems() ? totalItems() : (currentPage() * itemsPerPage()) }} de {{ totalItems() }} artículos
         </div>
         <div class="pagination-controls">
           <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">
