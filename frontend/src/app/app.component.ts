@@ -76,12 +76,9 @@ export class AppComponent implements OnInit {
     this.productService.searchTerm.set('');
   }
 
-  // Cierra sesión y redirige al login
   logout() {
     this.showProfileMenu.set(false);
-    this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

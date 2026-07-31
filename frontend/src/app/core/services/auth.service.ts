@@ -76,12 +76,23 @@ export class AuthService {
 
   logout() {
     const refreshToken = localStorage.getItem('refresh_token');
+    const token = localStorage.getItem('auth_token');
+    
+    // Opcional: Avisar al backend, pero no bloqueamos el frontend
+    if (refreshToken && token) {
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).subscribe({ error: () => {} });
+    }
+
+    // Limpiar TODO inmediatamente
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('profileName');
     localStorage.removeItem('role');
+    
+    // Forzar actualización del estado (esto cambiará la vista)
     this.isAuthenticated.set(false);
-    return this.http.post(`${this.apiUrl}/logout`, { refreshToken });
   }
 
   updateProfile(data: any) {

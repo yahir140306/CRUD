@@ -31,8 +31,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           catchError((refreshErr) => {
             localStorage.removeItem('auth_token');
             localStorage.removeItem('refresh_token');
-            authService.isAuthenticated.set(false);
-            router.navigateByUrl('/login', { replaceUrl: true });
+            localStorage.removeItem('profileName');
+            localStorage.removeItem('role');
+            // En vez de depender del router que podría fallar por el @if, forzamos la recarga al login
+            window.location.href = '/login';
             return throwError(() => refreshErr);
           }),
         );
